@@ -4,12 +4,26 @@ import { type Metadata, type Viewport } from 'next'
 import { Inter } from 'next/font/google';
 import { SiteHeader } from "@/components/site-header"
 import { Toaster } from "@/components/ui/toaster"
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'PWA Materials Analysis',
   description: 'Analyse de matériaux',
+  manifest: '/manifest.json',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' }
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Materials Analysis'
+  },
+  formatDetection: {
+    telephone: false
+  }
 }
 
 export const viewport: Viewport = {
@@ -51,6 +65,7 @@ export default function RootLayout({
             </footer>
           </div>
           <Toaster />
+          <PWAInstallPrompt />
         </ThemeProvider>
       </body>
     </html>
