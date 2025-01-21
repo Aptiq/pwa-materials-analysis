@@ -6,15 +6,24 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 
+// Définir le type Subject
+type Subject = {
+  id: string
+  title: string
+  description: string | null
+  imageUrl: string | null
+  createdAt: Date
+}
+
 export default async function MaterialsPage() {
-  let subjects = []
+  let subjects: Subject[] = []
 
   try {
     subjects = await prisma.subject.findMany({
       orderBy: {
         createdAt: 'desc'
       }
-    }) || []
+    })
   } catch (error) {
     console.error("Erreur lors de la récupération des matières:", error)
   }
