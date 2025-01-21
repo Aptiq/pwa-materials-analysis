@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default function ContactPage() {
   const { toast } = useToast()
@@ -24,14 +25,10 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="py-8 px-4 md:py-16 md:px-0 space-y-6 md:space-y-8">
-      <div className="text-center space-y-3 md:space-y-4">
-        <h1 className="text-3xl md:text-4xl font-bold">Contact</h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Une question ? N'hésitez pas à nous contacter
-        </p>
-      </div>
-
+    <PageContainer
+      heading="Contact"
+      subheading="Une question ? N'hésitez pas à nous contacter"
+    >
       <div className="max-w-md mx-auto">
         <div className="rounded-lg border bg-card p-4 md:p-6">
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
@@ -76,6 +73,6 @@ export default function ContactPage() {
           </form>
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }
