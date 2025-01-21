@@ -12,10 +12,6 @@ export const metadata: Metadata = {
   title: 'PWA Materials Analysis',
   description: 'Analyse de matériaux',
   manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
-  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
