@@ -15,10 +15,23 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Materials Analysis'
+    title: 'Materials Analysis',
+    startupImage: [
+      {
+        url: '/splash/apple-splash-2048-2732.jpg',
+        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)'
+      }
+    ]
   },
   formatDetection: {
     telephone: false
+  },
+  icons: {
+    apple: [
+      { url: '/icons/apple-icon-180.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icons/apple-icon-152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/apple-icon-120.png', sizes: '120x120', type: 'image/png' }
+    ]
   }
 }
 
@@ -28,7 +41,10 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: dark)', color: 'black' }
   ],
   width: 'device-width',
-  initialScale: 1
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover'
 }
 
 export default function RootLayout({
