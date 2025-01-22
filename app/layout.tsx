@@ -12,34 +12,37 @@ export const metadata: Metadata = {
   title: 'PWA Materials Analysis',
   description: 'Analyse de matériaux',
   manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Materials Analysis',
-    startupImage: [
-      {
-        url: '/splash/apple-splash-2048-2732.jpg',
-        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)'
-      }
-    ]
-  },
-  formatDetection: {
-    telephone: false
-  },
   icons: {
     apple: [
       { url: '/icons/apple-icon-180.png', sizes: '180x180', type: 'image/png' },
       { url: '/icons/apple-icon-152.png', sizes: '152x152', type: 'image/png' },
       { url: '/icons/apple-icon-120.png', sizes: '120x120', type: 'image/png' }
+    ],
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' }
     ]
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    startupImage: [
+      {
+        url: '/icons/apple-icon-180.png',
+        media: '(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)'
+      }
+    ],
+    title: 'Materials Analysis'
+  },
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'apple-mobile-web-app-title': 'Materials Analysis',
+    'mobile-web-app-capable': 'yes'
   }
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
-  ],
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
