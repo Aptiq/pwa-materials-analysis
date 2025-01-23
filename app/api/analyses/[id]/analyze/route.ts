@@ -4,9 +4,16 @@ import { analyzeImages } from '@/lib/image-analysis'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { [key: string]: string | undefined } }
 ): Promise<Response> {
   try {
+    if (!params.id) {
+      return Response.json(
+        { error: 'ID manquant' },
+        { status: 400 }
+      )
+    }
+
     const analysis = await prisma.analysis.findUnique({
       where: { id: params.id },
       include: {
