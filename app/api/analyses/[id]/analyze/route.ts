@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
 export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
     const analysis = await prisma.analysis.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       include: {
         originSubject: true,
         comparedSubject: true,
@@ -28,7 +28,7 @@ export async function POST(
     )
 
     const updatedAnalysis = await prisma.analysis.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: {
         matchedZone: results.matchedZone,
         degradationScore: results.degradationScore,
