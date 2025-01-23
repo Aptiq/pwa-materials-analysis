@@ -8,6 +8,7 @@ import { FileQuestion } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/components/analysis/analysis-results"
+import { MatchedZone } from '@/types/analysis'
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -29,6 +30,12 @@ export default async function AnalysisPage({ params }: PageProps) {
     return notFound()
   }
 
+  const results: AnalysisResults = {
+    matchedZone: analysis.matchedZone as MatchedZone | null,
+    degradationScore: analysis.degradationScore ?? 0,
+    colorDifference: analysis.colorDifference ?? 0,
+  }
+
   return (
     <PageContainer>
       <div className="max-w-5xl mx-auto px-4">
@@ -46,11 +53,7 @@ export default async function AnalysisPage({ params }: PageProps) {
           <AnalysisResults
             originImage={analysis.originSubject.imageUrl}
             comparedImage={analysis.comparedSubject.imageUrl}
-            results={{
-              matchedZone: analysis.matchedZone,
-              degradationScore: analysis.degradationScore,
-              colorDifference: analysis.colorDifference,
-            }}
+            results={results}
           />
         )}
       </div>

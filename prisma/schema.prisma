@@ -8,21 +8,17 @@ datasource db {
 }
 
 model Subject {
-  id               String     @id @default(cuid())
+  id               String           @id @default(cuid())
   title            String
   description      String?
   imageUrl         String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  
-  // Relations pour les versions de matières
-  parentSubjectId  String?
-  parentSubject    Subject?   @relation("SubjectVersions", fields: [parentSubjectId], references: [id])
-  childSubjects    Subject[]  @relation("SubjectVersions")
-
-  // Relations pour les analyses
-  originAnalyses   Analysis[] @relation("OriginSubject")
-  comparedAnalyses Analysis[] @relation("ComparedSubject")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  parentSubjectId  String?         // Pour lier les versions d'une même matière
+  parentSubject    Subject?        @relation("SubjectVersions", fields: [parentSubjectId], references: [id])
+  childSubjects    Subject[]       @relation("SubjectVersions")
+  originAnalyses   Analysis[]      @relation("OriginSubject")
+  comparedAnalyses Analysis[]      @relation("ComparedSubject")
 }
 
 model Analysis {
