@@ -8,10 +8,33 @@ datasource db {
 }
 
 model Subject {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String     @id @default(cuid())
+  title            String
+  description      String?
+  imageUrl         String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  
+  // Relations pour les versions de matières
+  parentSubjectId  String?
+  parentSubject    Subject?   @relation("SubjectVersions", fields: [parentSubjectId], references: [id])
+  childSubjects    Subject[]  @relation("SubjectVersions")
+
+  // Relations pour les analyses
+  originAnalyses   Analysis[] @relation("OriginSubject")
+  comparedAnalyses Analysis[] @relation("ComparedSubject")
+}
+
+model Analysis {
+  id                String   @id @default(cuid())
+  originSubject     Subject  @relation("OriginSubject", fields: [originSubjectId], references: [id])
+  originSubjectId   String
+  comparedSubject   Subject  @relation("ComparedSubject", fields: [comparedSubjectId], references: [id])
+  comparedSubjectId String
+  matchedZone       Json?    // Stockage des coordonnées de la zone matchée
+  degradationScore  Float?   // Score calculé de dégradation
+  colorDifference   Float?   // Différence de couleur calculée (ΔE)
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 } 

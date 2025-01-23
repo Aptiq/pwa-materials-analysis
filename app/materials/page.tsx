@@ -13,6 +13,13 @@ type Subject = {
   description: string | null
   imageUrl: string | null
   createdAt: Date
+  childSubjects: {
+    id: string
+    title: string
+    description: string | null
+    imageUrl: string | null
+    createdAt: Date
+  }[]
 }
 
 export default async function MaterialsPage() {
@@ -20,6 +27,12 @@ export default async function MaterialsPage() {
 
   try {
     subjects = await prisma.subject.findMany({
+      where: {
+        parentSubjectId: null // Seulement les matières d'origine
+      },
+      include: {
+        childSubjects: true // Inclure les versions pour chaque matière
+      },
       orderBy: {
         createdAt: 'desc'
       }

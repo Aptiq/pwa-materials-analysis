@@ -1,18 +1,20 @@
-import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { put } from '@vercel/blob'
+import { revalidatePath } from 'next/cache'
 
 // Ajout de cette ligne pour rendre la route dynamique
 export const dynamic = 'force-dynamic'
 
 // Route pour créer une matière avec ou sans image
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const formData = await req.formData()
+    const formData = await request.formData()
     const title = formData.get('title') as string
-    const description = formData.get('description') as string
-    const file = formData.get('image') as File | null
-    
+    const description = formData.get('description') as string | null
+    const imageFile = formData.get('image') as File | null
+    const parentSubjectId = formData.get('parentSubjectId') as string | null
+
     if (!title) {
       return NextResponse.json(
         { error: 'Titre requis' },
@@ -20,32 +22,46 @@ export async function POST(req: Request) {
       )
     }
 
-    let imageUrl = null
-    if (file) {
-      try {
-        const blob = await put(file.name, file, {
-          access: 'public',
-        })
-        imageUrl = blob.url
-      } catch (error) {
-        console.error('Erreur upload image:', error)
+    // Si un parentSubjectId est fourni, vérifions qu'il existe
+    if (parentSubjectId) {
+      const parentExists = await prisma.subject.findUnique({
+        where: { id: parentSubjectId }
+      })
+
+      if (!parentExists) {
+        return NextResponse.json(
+          { error: 'Matière parente non trouvée' },
+          { status: 400 }
+        )
       }
+    }
+
+    let imageUrl = null
+    if (imageFile) {
+      // Générer un nom de fichier unique
+      const fileName = `${Date.now()}-${imageFile.name}`
+      const blob = await put(fileName, imageFile, {
+        access: 'public',
+        addRandomSuffix: true
+      })
+      imageUrl = blob.url
     }
 
     const subject = await prisma.subject.create({
       data: {
         title,
-        description: description || null,
-        imageUrl: imageUrl,
+        description,
+        imageUrl,
+        parentSubjectId,
       },
     })
 
+    revalidatePath('/materials')
     return NextResponse.json(subject)
-
   } catch (error) {
-    console.error('Erreur création matière:', error)
+    console.error('Error creating subject:', error)
     return NextResponse.json(
-      { error: 'Erreur lors de la création de la matière' },
+      { error: 'Une erreur est survenue lors de la création de la matière' },
       { status: 500 }
     )
   }
@@ -57,6 +73,10 @@ export async function GET() {
     const subjects = await prisma.subject.findMany({
       orderBy: {
         createdAt: 'desc',
+      },
+      include: {
+        parentSubject: true,
+        childSubjects: true,
       },
     })
     
