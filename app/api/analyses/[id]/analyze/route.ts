@@ -2,19 +2,19 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-interface RequestContext {
-  params: {
-    id: string;
-  };
-}
+type Context = {
+  params: Record<string, string | string[]>;
+};
 
 export async function POST(
-  request: Request | NextRequest,
-  { params }: RequestContext
+  request: NextRequest,
+  context: Context
 ): Promise<Response> {
   try {
+    const id = context.params.id as string
+
     const analysis = await prisma.analysis.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         originSubject: true,
         comparedSubject: true,
@@ -37,7 +37,7 @@ export async function POST(
     )
 
     const updatedAnalysis = await prisma.analysis.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         matchedZone: results.matchedZone,
         degradationScore: results.degradationScore,
