@@ -10,17 +10,19 @@ import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/components/analysis/analysis-results"
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string }
+  params: {
+    id: string
+  }
+  searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default async function AnalysisPage({ params }: PageProps) {
-  // Attendre les paramètres de manière explicite
-  const resolvedParams = await params
-  const id = resolvedParams.id
-
+export default async function AnalysisPage({ 
+  params,
+  searchParams 
+}: PageProps) {
   const analysis = await prisma.analysis.findUnique({
     where: { 
-      id 
+      id: params.id 
     },
     include: {
       originSubject: true,
@@ -63,8 +65,7 @@ export default async function AnalysisPage({ params }: PageProps) {
 
 // Ajout de generateMetadata pour gérer les métadonnées de manière asynchrone
 export async function generateMetadata({ params }: PageProps) {
-  const resolvedParams = await params
   return {
-    title: `Analyse ${resolvedParams.id}`,
+    title: `Analyse ${params.id}`,
   }
 } 
