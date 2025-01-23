@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/types/analysis"
 import { MatchedZone } from '@/types/analysis'
+import { ComparisonView } from '@/components/comparison-view'
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -50,7 +51,7 @@ export default async function AnalysisPage({ params }: PageProps) {
         </PageHeader>
 
         {analysis.originSubject.imageUrl && analysis.comparedSubject.imageUrl && (
-          <AnalysisResults
+          <ComparisonView
             originImage={analysis.originSubject.imageUrl}
             comparedImage={analysis.comparedSubject.imageUrl}
             results={results}
