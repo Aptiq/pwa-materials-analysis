@@ -2,19 +2,12 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-type Context = {
-  params: Record<string, string | undefined>;
-};
-
 export async function POST(
   request: NextRequest,
-  context: Context
+  { params }: { params: { [key: string]: string } }
 ): Promise<Response> {
   try {
-    const id = context.params.id
-    if (!id) {
-      return Response.json({ error: 'ID manquant' }, { status: 400 })
-    }
+    const { id } = params
 
     const analysis = await prisma.analysis.findUnique({
       where: { id },
