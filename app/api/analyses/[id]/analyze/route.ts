@@ -2,19 +2,13 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-type Context = {
-  params: Record<string, string | string[]>;
-};
-
 export async function POST(
   request: NextRequest,
-  context: Context
+  { params }: { params: { id: string } }
 ): Promise<Response> {
   try {
-    const id = context.params.id as string
-
     const analysis = await prisma.analysis.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: {
         originSubject: true,
         comparedSubject: true,
@@ -22,12 +16,9 @@ export async function POST(
     })
 
     if (!analysis || !analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl) {
-      return new Response(
-        JSON.stringify({ error: 'Analyse ou images introuvables' }),
-        { 
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return Response.json(
+        { error: 'Analyse ou images introuvables' },
+        { status: 404 }
       )
     }
 
@@ -37,7 +28,7 @@ export async function POST(
     )
 
     const updatedAnalysis = await prisma.analysis.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         matchedZone: results.matchedZone,
         degradationScore: results.degradationScore,
@@ -49,21 +40,12 @@ export async function POST(
       }
     })
 
-    return new Response(
-      JSON.stringify(updatedAnalysis),
-      { 
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    )
+    return Response.json(updatedAnalysis)
   } catch (error) {
     console.error('Error analyzing images:', error)
-    return new Response(
-      JSON.stringify({ error: 'Erreur lors de l\'analyse des images' }),
-      { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    return Response.json(
+      { error: 'Erreur lors de l\'analyse des images' },
+      { status: 500 }
     )
   }
 } 
