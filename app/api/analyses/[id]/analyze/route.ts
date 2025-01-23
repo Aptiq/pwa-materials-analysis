@@ -2,21 +2,19 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
+type Props = {
+  params: {
+    id: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
 export async function POST(
   request: NextRequest,
-  context: { params: { [key: string]: string | string[] } }
+  props: Props
 ): Promise<Response> {
   try {
-    const id = Array.isArray(context.params.id) 
-      ? context.params.id[0] 
-      : context.params.id
-
-    if (!id) {
-      return Response.json(
-        { error: 'ID manquant' },
-        { status: 400 }
-      )
-    }
+    const { id } = props.params
 
     const analysis = await prisma.analysis.findUnique({
       where: { id },
