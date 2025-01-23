@@ -8,18 +8,15 @@ import { FileQuestion } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/components/analysis/analysis-results"
-import { PageProps } from '@/types/next'
 
-type AnalysisPageProps = {
+interface PageProps {
   params: {
     id: string
   }
+  searchParams?: { [key: string]: string | string[] | undefined }
 }
 
-export default async function AnalysisPage({ 
-  params 
-}: AnalysisPageProps) {
-  // Validation explicite du paramètre
+export default async function AnalysisPage({ params }: PageProps) {
   if (!params?.id) {
     return notFound()
   }
@@ -67,9 +64,7 @@ export default async function AnalysisPage({
   )
 }
 
-export async function generateMetadata({ 
-  params 
-}: AnalysisPageProps) {
+export async function generateMetadata({ params }: PageProps) {
   return {
     title: `Analyse ${params.id}`,
   }
