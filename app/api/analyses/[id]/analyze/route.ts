@@ -1,14 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 export async function POST(
-  request: NextRequest,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: RouteContext
 ) {
   try {
     const analysis = await prisma.analysis.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
       include: {
         originSubject: true,
         comparedSubject: true,
@@ -16,7 +22,7 @@ export async function POST(
     })
 
     if (!analysis || !analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Analyse ou images introuvables' },
         { status: 404 }
       )
@@ -28,7 +34,7 @@ export async function POST(
     )
 
     const updatedAnalysis = await prisma.analysis.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data: {
         matchedZone: results.matchedZone,
         degradationScore: results.degradationScore,
@@ -40,10 +46,10 @@ export async function POST(
       }
     })
 
-    return NextResponse.json(updatedAnalysis)
+    return Response.json(updatedAnalysis)
   } catch (error) {
     console.error('Error analyzing images:', error)
-    return NextResponse.json(
+    return Response.json(
       { error: 'Erreur lors de l\'analyse des images' },
       { status: 500 }
     )
