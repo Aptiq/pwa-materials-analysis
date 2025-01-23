@@ -4,13 +4,30 @@ import { AnalysisList } from '@/components/analysis/analysis-list'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { PlusCircle } from 'lucide-react'
-import type { Analysis } from '@prisma/client'
+
+type Analysis = {
+  id: string
+  originSubject: {
+    id: string
+    title: string
+    imageUrl: string | null
+  }
+  comparedSubject: {
+    id: string
+    title: string
+    imageUrl: string | null
+  }
+  matchedZone: any
+  degradationScore: number | null
+  colorDifference: number | null
+  createdAt: Date
+}
 
 export default async function AnalysesPage() {
   let analyses: Analysis[] = []
 
   try {
-    analyses = await prisma.analysis.findMany({
+    const dbAnalyses = await prisma.analysis.findMany({
       orderBy: {
         createdAt: 'desc'
       },
@@ -19,6 +36,24 @@ export default async function AnalysesPage() {
         comparedSubject: true,
       }
     })
+
+    analyses = dbAnalyses.map(analysis => ({
+      id: analysis.id,
+      originSubject: {
+        id: analysis.originSubject.id,
+        title: analysis.originSubject.title,
+        imageUrl: analysis.originSubject.imageUrl
+      },
+      comparedSubject: {
+        id: analysis.comparedSubject.id,
+        title: analysis.comparedSubject.title,
+        imageUrl: analysis.comparedSubject.imageUrl
+      },
+      matchedZone: analysis.matchedZone,
+      degradationScore: analysis.degradationScore,
+      colorDifference: analysis.colorDifference,
+      createdAt: analysis.createdAt
+    }))
   } catch (error) {
     console.error('Error fetching analyses:', error)
   }
