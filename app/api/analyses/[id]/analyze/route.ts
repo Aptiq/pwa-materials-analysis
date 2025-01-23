@@ -2,15 +2,19 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-// Importation du type correct depuis next/dist/server/api-utils
-import type { NextApiRequest } from 'next'
+type Context = {
+  params: Record<string, string | undefined>;
+};
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: NextApiRequest['query'] }
+  context: Context
 ): Promise<Response> {
   try {
-    const id = params.id as string
+    const id = context.params.id
+    if (!id) {
+      return Response.json({ error: 'ID manquant' }, { status: 400 })
+    }
 
     const analysis = await prisma.analysis.findUnique({
       where: { id },
