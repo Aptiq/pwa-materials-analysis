@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
@@ -34,9 +35,21 @@ export async function POST(request: Request) {
       data: {
         originSubjectId,
         comparedSubjectId,
-        matchedZone: null, // Sera mis à jour par l'algorithme d'analyse
-        degradationScore: null, // Sera calculé par l'algorithme d'analyse
-        colorDifference: null, // Sera calculé par l'algorithme d'analyse
+        matchedZone: Prisma.JsonNull,
+        degradationScore: null,
+        colorDifference: null,
+        originSubject: {
+          create: {
+            title: "Image originale",
+            imageUrl: null,
+          }
+        },
+        comparedSubject: {
+          create: {
+            title: "Image à comparer",
+            imageUrl: null,
+          }
+        }
       },
       include: {
         originSubject: true,
