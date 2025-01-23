@@ -2,16 +2,16 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-type RouteContext = {
+interface RequestContext {
   params: {
     id: string;
   };
-};
+}
 
 export async function POST(
-  req: NextRequest,
-  { params }: RouteContext
-) {
+  request: Request | NextRequest,
+  { params }: RequestContext
+): Promise<Response> {
   try {
     const analysis = await prisma.analysis.findUnique({
       where: { id: params.id },
@@ -22,9 +22,12 @@ export async function POST(
     })
 
     if (!analysis || !analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl) {
-      return Response.json(
-        { error: 'Analyse ou images introuvables' },
-        { status: 404 }
+      return new Response(
+        JSON.stringify({ error: 'Analyse ou images introuvables' }),
+        { 
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        }
       )
     }
 
@@ -46,12 +49,21 @@ export async function POST(
       }
     })
 
-    return Response.json(updatedAnalysis)
+    return new Response(
+      JSON.stringify(updatedAnalysis),
+      { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
   } catch (error) {
     console.error('Error analyzing images:', error)
-    return Response.json(
-      { error: 'Erreur lors de l\'analyse des images' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Erreur lors de l\'analyse des images' }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     )
   }
 } 
