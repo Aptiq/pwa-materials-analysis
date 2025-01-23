@@ -5,7 +5,7 @@ export interface MatchedZone {
   height: number;
 }
 
-export interface AnalysisResults {
+export type AnalysisResults = {
   matchedZone: MatchedZone | null;
   degradationScore: number;
   colorDifference: number;

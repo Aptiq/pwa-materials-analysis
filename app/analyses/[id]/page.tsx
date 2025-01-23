@@ -7,7 +7,7 @@ import Image from "next/image"
 import { FileQuestion } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
-import { AnalysisResults } from "@/components/analysis/analysis-results"
+import { AnalysisResults } from "@/types/analysis"
 import { MatchedZone } from '@/types/analysis'
 
 interface PageProps {
