@@ -9,17 +9,16 @@ import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/components/analysis/analysis-results"
 
-export default async function AnalysisPage(props: {
-  params: Promise<{ id: string }> | { id: string }
-}) {
-  const params = await (
-    props.params instanceof Promise ? props.params : Promise.resolve(props.params)
-  )
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function AnalysisPage({ params }: PageProps) {
+  const resolvedParams = await params
+  const { id } = resolvedParams
 
   const analysis = await prisma.analysis.findUnique({
-    where: { 
-      id: params.id 
-    },
+    where: { id },
     include: {
       originSubject: true,
       comparedSubject: true,
@@ -59,14 +58,9 @@ export default async function AnalysisPage(props: {
   )
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ id: string }> | { id: string }
-}): Promise<any> {
-  const params = await (
-    props.params instanceof Promise ? props.params : Promise.resolve(props.params)
-  )
-  
+export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params
   return {
-    title: `Analyse ${params.id}`,
+    title: `Analyse ${resolvedParams.id}`,
   }
 } 
