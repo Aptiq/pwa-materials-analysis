@@ -2,19 +2,15 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { analyzeImages } from '@/lib/image-analysis'
 
-type Props = {
-  params: {
-    id: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+// Importation du type correct depuis next/dist/server/api-utils
+import type { NextApiRequest } from 'next'
 
 export async function POST(
   request: NextRequest,
-  props: Props
+  { params }: { params: NextApiRequest['query'] }
 ): Promise<Response> {
   try {
-    const { id } = props.params
+    const id = params.id as string
 
     const analysis = await prisma.analysis.findUnique({
       where: { id },
