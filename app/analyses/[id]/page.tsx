@@ -8,18 +8,22 @@ import { FileQuestion } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { AnalysisResults } from "@/components/analysis/analysis-results"
+import { PageProps } from '@/types/next'
 
-interface PageProps {
+type AnalysisPageProps = {
   params: {
     id: string
   }
-  searchParams?: { [key: string]: string | string[] | undefined }
 }
 
 export default async function AnalysisPage({ 
-  params,
-  searchParams 
-}: PageProps) {
+  params 
+}: AnalysisPageProps) {
+  // Validation explicite du paramètre
+  if (!params?.id) {
+    return notFound()
+  }
+
   const analysis = await prisma.analysis.findUnique({
     where: { 
       id: params.id 
@@ -63,8 +67,9 @@ export default async function AnalysisPage({
   )
 }
 
-// Ajout de generateMetadata pour gérer les métadonnées de manière asynchrone
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ 
+  params 
+}: AnalysisPageProps) {
   return {
     title: `Analyse ${params.id}`,
   }
