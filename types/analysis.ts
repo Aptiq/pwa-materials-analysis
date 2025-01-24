@@ -19,6 +19,8 @@ export interface VisualData {
   comparedKeypoints?: string;
   keypointsOrigin?: string;
   keypointsCompared?: string;
+  alignedOrigin?: string;
+  alignedCompared?: string;
 }
 
 export interface Analysis {

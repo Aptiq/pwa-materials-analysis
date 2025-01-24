@@ -126,10 +126,10 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
               <div className="space-y-8">
                 <Card className="p-4">
                   <h3 className="text-lg font-semibold mb-4">Zone alignée - État d&apos;origine</h3>
-                  {visualData.alignedOrigin && (
+                  {visualData.alignedOrigin || visualData.alignedImage ? (
                     <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                       <Image
-                        src={visualData.alignedOrigin}
+                        src={visualData.alignedOrigin || visualData.alignedImage}
                         alt="Zone alignée - État d'origine"
                         fill
                         className="object-cover"
@@ -140,10 +140,10 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
 
                 <Card className="p-4">
                   <h3 className="text-lg font-semibold mb-4">Zone alignée - État comparé</h3>
-                  {visualData.alignedCompared && (
+                  {visualData.alignedCompared || visualData.alignedImage ? (
                     <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                       <Image
-                        src={visualData.alignedCompared}
+                        src={visualData.alignedCompared || visualData.alignedImage}
                         alt="Zone alignée - État comparé"
                         fill
                         className="object-cover"
