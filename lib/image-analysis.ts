@@ -31,6 +31,15 @@ type OpenCVDMatchVectorVector = {
   delete(): void
 }
 
+interface OpenCV {
+  Mat: new () => OpenCVMat
+  KeyPointVector: new () => OpenCVKeyPointVector
+  DMatchVector: new () => OpenCVDMatchVector
+  DMatchVectorVector: new () => OpenCVDMatchVectorVector
+  imread(img: HTMLImageElement): OpenCVMat
+  imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
+}
+
 interface AlignmentResult {
   homography: OpenCVMat
   matchedKeypoints: {
@@ -52,7 +61,11 @@ export interface AnalysisResult {
   error?: string
 }
 
-async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentResult> {
+async function alignImages(
+  cv: OpenCV,
+  source: OpenCVMat,
+  target: OpenCVMat
+): Promise<AlignmentResult> {
   let sourceGray = new cv.Mat()
   let targetGray = new cv.Mat()
   let sourceKeypoints = new cv.KeyPointVector()
@@ -175,12 +188,13 @@ function matchKeypoints(descriptors1: cv.Mat, descriptors2: cv.Mat): cv.DMatch[]
 }
 
 export async function analyzeImages(
+  cv: OpenCV,
   originImage: OpenCVMat,
   comparedImage: OpenCVMat
 ): Promise<AnalysisResult> {
   try {
     // 1. D'abord aligner l'image2 sur l'image1
-    const alignmentResult = await alignImages(comparedImage, originImage)
+    const alignmentResult = await alignImages(cv, comparedImage, originImage)
     
     if (!alignmentResult.success) {
       return {
@@ -197,8 +211,8 @@ export async function analyzeImages(
     }
     
     // 2. Maintenant on peut procéder à l'analyse sur des images alignées
-    const result1 = await detectKeypoints(originImage)
-    const result2 = await detectKeypoints(alignmentResult.alignedImage)
+    const result1 = await detectKeypoints(cv, originImage)
+    const result2 = await detectKeypoints(cv, alignmentResult.alignedImage)
     
     // 3. Calculer le score de dégradation
     const matches = matchKeypoints(result1.descriptors, result2.descriptors)
@@ -235,7 +249,10 @@ export async function analyzeImages(
   }
 }
 
-export async function detectKeypoints(image: OpenCVMat): Promise<{
+export async function detectKeypoints(
+  cv: OpenCV,
+  image: OpenCVMat
+): Promise<{
   keypoints: OpenCVKeyPointVector;
   descriptors: cv.Mat;
   visualResult: cv.Mat;
