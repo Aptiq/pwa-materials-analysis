@@ -99,7 +99,7 @@ export function AnalyzeButton({
       mat2 = cv.imread(img2)
 
       // Analyser les images
-      const result = await analyzeImages(mat1, mat2)
+      const result = await analyzeImages(cv, mat1, mat2)
 
       if (result.error) {
         setError(result.error)
