@@ -3,6 +3,11 @@ import Link from "next/link"
 import { FileQuestion } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Subject } from "@prisma/client"
+import { SubjectCard } from "./subject-card"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import { loadOpenCvScript } from "@/types/opencv-loader"
 
 type Subject = {
   id: string
@@ -18,7 +23,11 @@ type Subject = {
   }[]
 }
 
-export function SubjectList({ subjects }: { subjects: Subject[] }) {
+interface SubjectListProps {
+  subjects: Subject[]
+}
+
+export function SubjectList({ subjects }: SubjectListProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {subjects.map((subject) => (
@@ -98,4 +107,14 @@ const loadOpenCvWithTimeout = async () => {
     console.error(error)
     // Gérer l'erreur (afficher un message à l'utilisateur, etc.)
   }
+}
+
+const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  // ... code existant ...
+  
+  console.log("Début du chargement d'OpenCV...")
+  await loadOpenCvScript()
+  console.log("OpenCV chargé avec succès")
+  
+  // ... reste du code inchangé ...
 } 
