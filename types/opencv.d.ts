@@ -33,10 +33,9 @@ declare namespace cv {
 
   class KeyPointVector {
     constructor();
-    delete(): void;
     size(): number;
     get(index: number): KeyPoint;
-    push_back(kp: KeyPoint): void;
+    delete(): void;
   }
 
   class DMatchVector {
@@ -78,13 +77,7 @@ declare namespace cv {
   // Classes pour la détection de caractéristiques
   class AKAZE {
     constructor();
-    detect(image: Mat, mask?: Mat): KeyPointVector;
-    compute(image: Mat, keypoints: KeyPointVector, descriptors: Mat): void;
-  }
-
-  class SIFT {
-    constructor();
-    detect(image: Mat, mask?: Mat): KeyPointVector;
+    detect(image: Mat, keypoints: KeyPointVector): void;
     compute(image: Mat, keypoints: KeyPointVector, descriptors: Mat): void;
   }
 
@@ -92,7 +85,6 @@ declare namespace cv {
   function imread(imageSource: string | HTMLImageElement): Mat;
   function imshow(canvasSource: string | HTMLCanvasElement, mat: Mat): void;
   function cvtColor(src: Mat, dst: Mat, code: number): void;
-  function SIFT_create(): Feature2D;
   function BFMatcher_create(normType?: number): DescriptorMatcher;
 
   // Fonctions de dessin
@@ -103,6 +95,13 @@ declare namespace cv {
   class Scalar {
     constructor(r: number, g: number, b: number, a?: number);
   }
+
+  // Fonctions pour l'alignement d'images
+  function findHomography(srcPoints: Point[], dstPoints: Point[], method: number): Mat;
+  function warpPerspective(src: Mat, dst: Mat, M: Mat, dsize: Size): void;
+  
+  // Constantes
+  const RANSAC: number;
 }
 
 declare interface Feature2D {

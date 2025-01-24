@@ -29,6 +29,8 @@ export default async function AnalysesPage() {
   let analyses: Analysis[] = []
 
   try {
+    console.log("Début de la requête Prisma")
+    
     analyses = await prisma.analysis.findMany({
       include: {
         originSubject: true,
@@ -38,8 +40,11 @@ export default async function AnalysesPage() {
         createdAt: 'desc'
       }
     })
+    
+    console.log("Nombre d'analyses trouvées:", analyses.length)
+    console.log("Première analyse:", analyses[0])
   } catch (error) {
-    console.error("Erreur lors de la récupération des analyses:", error)
+    console.error("Erreur détaillée lors de la récupération des analyses:", error)
   }
 
   return (

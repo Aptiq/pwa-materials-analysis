@@ -1,94 +1,172 @@
 'use client'
 
-export async function analyzeImages(image1Url: string, image2Url: string) {
-  console.log("Début de l'analyse avec les URLs:", { image1Url, image2Url })
+interface AlignmentResult {
+  alignedImage: cv.Mat;
+  homography?: cv.Mat;  // Matrice de transformation
+  success: boolean;
+}
+
+interface AnalysisResult {
+  error?: string;
+  degradationScore?: number;
+  visualData?: {
+    image1: string;
+    image2: string;
+    alignedImage?: string;
+  };
+}
+
+async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentResult> {
+  let sourceGray = new cv.Mat()
+  let targetGray = new cv.Mat()
+  let sourceKeypoints = new cv.KeyPointVector()
+  let targetKeypoints = new cv.KeyPointVector()
+  let sourceDescriptors = new cv.Mat()
+  let targetDescriptors = new cv.Mat()
+  let matches = new cv.DMatchVectorVector()
+  let srcPoints: cv.Mat | null = null
+  let dstPoints: cv.Mat | null = null
   
-  if (typeof window === 'undefined') {
-    throw new Error('Cette fonction doit être exécutée côté client')
-  }
-
-  const cv = window.cv
-  if (!cv) {
-    throw new Error("OpenCV n'est pas chargé")
-  }
-
   try {
-    // Charger les images
-    console.log("Chargement des images...")
-    const [img1, img2] = await Promise.all([
-      loadImage(image1Url),
-      loadImage(image2Url)
-    ])
-    console.log("Images chargées avec succès")
-
-    // Convertir les images en matrices OpenCV
-    console.log("Conversion en matrices OpenCV...")
-    const mat1 = cv.imread(img1)
-    const mat2 = cv.imread(img2)
-    console.log("Matrices créées:", { 
-      mat1Size: `${mat1.rows}x${mat1.cols}`,
-      mat2Size: `${mat2.rows}x${mat2.cols}`
-    })
-
-    try {
-      // Convertir en niveaux de gris
-      console.log("Conversion en niveaux de gris...")
-      const gray1 = new cv.Mat()
-      const gray2 = new cv.Mat()
-      cv.cvtColor(mat1, gray1, cv.COLOR_RGBA2GRAY)
-      cv.cvtColor(mat2, gray2, cv.COLOR_RGBA2GRAY)
-
-      // Détecter les points clés
-      console.log("Détection des points clés...")
-      const akaze = new cv.AKAZE()
-      const keypoints1 = new cv.KeyPointVector()
-      const keypoints2 = new cv.KeyPointVector()
-      const descriptors1 = new cv.Mat()
-      const descriptors2 = new cv.Mat()
-
-      akaze.detectAndCompute(gray1, new cv.Mat(), keypoints1, descriptors1)
-      akaze.detectAndCompute(gray2, new cv.Mat(), keypoints2, descriptors2)
-      console.log("Points clés détectés:", {
-        keypoints1: keypoints1.size(),
-        keypoints2: keypoints2.size()
-      })
-
-      // Matcher les points clés
-      const matcher = new cv.BFMatcher(cv.NORM_HAMMING)
-      const matches = new cv.DMatchVector()
-      matcher.match(descriptors1, descriptors2, matches)
-
-      // Filtrer les meilleurs matches
-      const goodMatches = filterGoodMatches(matches)
-
-      // Calculer la zone correspondante
-      const matchedZone = calculateMatchedZone(keypoints1, keypoints2, goodMatches)
-
-      // Calculer le score de dégradation
-      const degradationScore = calculateDegradationScore(mat1, mat2, matchedZone)
-
-      // Calculer la différence de couleur
-      const colorDifference = calculateColorDifference(mat1, mat2, matchedZone)
-
-      // Calculer les résultats
-      const results = {
-        matchedZone,
-        degradationScore,
-        colorDifference
+    // 1. Détecter les points clés dans les deux images
+    cv.cvtColor(source, sourceGray, cv.COLOR_RGBA2GRAY)
+    cv.cvtColor(target, targetGray, cv.COLOR_RGBA2GRAY)
+    
+    // Utiliser AKAZE qui est disponible dans OpenCV.js
+    const akaze = new cv.AKAZE()
+    
+    // Détecter les points clés
+    akaze.detect(sourceGray, sourceKeypoints)
+    akaze.detect(targetGray, targetKeypoints)
+    
+    // Calculer les descripteurs
+    akaze.compute(sourceGray, sourceKeypoints, sourceDescriptors)
+    akaze.compute(targetGray, targetKeypoints, targetDescriptors)
+    
+    // 2. Trouver les meilleures correspondances
+    const matcher = new cv.BFMatcher()
+    matcher.knnMatch(sourceDescriptors, targetDescriptors, matches, 2)
+    
+    // 3. Filtrer les bonnes correspondances (ratio test de Lowe)
+    const goodMatches = []
+    for (let i = 0; i < matches.size(); i++) {
+      const match = matches.get(i)
+      if (match.get(0).distance < 0.7 * match.get(1).distance) {
+        goodMatches.push(match.get(0))
       }
+    }
+    
+    // 4. Calculer l'homographie si on a assez de bonnes correspondances
+    if (goodMatches.length < 4) {
+      return { alignedImage: source.clone(), success: false }
+    }
+    
+    // Créer les matrices pour les points
+    srcPoints = new cv.Mat(goodMatches.length, 1, cv.CV_32FC2)
+    dstPoints = new cv.Mat(goodMatches.length, 1, cv.CV_32FC2)
+    
+    // Extraire les points correspondants
+    for (let i = 0; i < goodMatches.length; i++) {
+      const srcPt = sourceKeypoints.get(goodMatches[i].queryIdx).pt
+      const dstPt = targetKeypoints.get(goodMatches[i].trainIdx).pt
+      srcPoints.data32F[i * 2] = srcPt.x
+      srcPoints.data32F[i * 2 + 1] = srcPt.y
+      dstPoints.data32F[i * 2] = dstPt.x
+      dstPoints.data32F[i * 2 + 1] = dstPt.y
+    }
+    
+    // Calculer l'homographie
+    const homography = cv.findHomography(srcPoints, dstPoints, cv.RANSAC)
+    
+    // 5. Appliquer la transformation
+    const alignedImage = new cv.Mat()
+    cv.warpPerspective(
+      source,
+      alignedImage,
+      homography,
+      new cv.Size(target.cols, target.rows)
+    )
+    
+    return {
+      alignedImage,
+      homography,
+      success: true
+    }
+    
+  } catch (error) {
+    console.error("Erreur lors de l'alignement des images:", error)
+    return { alignedImage: source.clone(), success: false }
+  } finally {
+    // Nettoyer les ressources
+    sourceGray.delete()
+    targetGray.delete()
+    sourceKeypoints.delete()
+    targetKeypoints.delete()
+    sourceDescriptors.delete()
+    targetDescriptors.delete()
+    matches.delete()
+    srcPoints?.delete()
+    dstPoints?.delete()
+  }
+}
 
-      console.log("Analyse terminée avec succès:", results)
-      return results
+function matchKeypoints(descriptors1: cv.Mat, descriptors2: cv.Mat): cv.DMatch[] {
+  const matches = new cv.DMatchVectorVector()
+  const goodMatches: cv.DMatch[] = []
+  
+  try {
+    // Créer le matcher
+    const matcher = new cv.BFMatcher()
+    
+    // Trouver les 2 meilleurs matches pour chaque descripteur
+    matcher.knnMatch(descriptors1, descriptors2, matches, 2)
+    
+    // Appliquer le ratio test de Lowe
+    for (let i = 0; i < matches.size(); i++) {
+      const match = matches.get(i)
+      if (match.get(0).distance < 0.7 * match.get(1).distance) {
+        goodMatches.push(match.get(0))
+      }
+    }
+    
+    return goodMatches
+  } finally {
+    matches.delete()
+  }
+}
 
-    } finally {
-      // Libérer la mémoire
-      mat1.delete()
-      mat2.delete()
-      console.log("Mémoire libérée")
+export async function analyzeImages(image1: cv.Mat, image2: cv.Mat): Promise<AnalysisResult> {
+  try {
+    // 1. D'abord aligner l'image2 sur l'image1
+    const alignmentResult = await alignImages(image2, image1)
+    
+    if (!alignmentResult.success) {
+      return {
+        error: "Impossible d'aligner les images. Assurez-vous que les photos montrent la même zone du matériau."
+      }
+    }
+    
+    // 2. Maintenant on peut procéder à l'analyse sur des images alignées
+    const result1 = await detectKeypoints(image1)
+    const result2 = await detectKeypoints(alignmentResult.alignedImage)
+    
+    // 3. Calculer le score de dégradation
+    const matches = matchKeypoints(result1.descriptors, result2.descriptors)
+    const score = calculateDegradationScore(matches, result1.keypoints, result2.keypoints)
+    
+    return {
+      degradationScore: score,
+      visualData: {
+        image1: matToBase64(result1.visualResult),
+        image2: matToBase64(result2.visualResult),
+        alignedImage: matToBase64(alignmentResult.alignedImage)
+      }
     }
   } catch (error) {
-    console.error("Erreur pendant l'analyse:", error)
-    throw error
+    console.error("Erreur lors de l'analyse:", error)
+    return {
+      error: "Une erreur est survenue lors de l'analyse des images"
+    }
   }
 }
 
@@ -99,6 +177,8 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
 }> {
   let gray = new cv.Mat()
   let visualResult = new cv.Mat()
+  let keypoints = new cv.KeyPointVector()
+  let descriptors = new cv.Mat()
   
   try {
     console.log("Début de la détection des points clés...")
@@ -113,10 +193,9 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
     const akaze = new cv.AKAZE()
     
     // 3. Détecter les points clés
-    const keypoints = akaze.detect(gray)
+    akaze.detect(gray, keypoints)
     
     // 4. Calculer les descripteurs
-    const descriptors = new cv.Mat()
     akaze.compute(gray, keypoints, descriptors)
 
     // 5. Visualiser les points clés
@@ -128,8 +207,11 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
       visualResult
     }
   } catch (error) {
+    console.error("Erreur lors de la détection des points clés:", error)
     gray.delete()
     visualResult.delete()
+    keypoints.delete()
+    descriptors.delete()
     throw error
   }
 }
@@ -183,9 +265,21 @@ function calculateMatchedZone(keypoints1: cv.KeyPointVector, keypoints2: cv.KeyP
 }
 
 // Calculer le score de dégradation
-function calculateDegradationScore(mat1: cv.Mat, mat2: cv.Mat, matchedZone: any) {
-  // Implémenter la logique pour calculer le score de dégradation
-  return 0.5
+function calculateDegradationScore(
+  matches: cv.DMatch[],
+  keypoints1: cv.KeyPointVector,
+  keypoints2: cv.KeyPointVector
+): number {
+  // Si pas de correspondances, score maximum de dégradation
+  if (matches.length === 0) return 1.0
+  
+  // Calculer le ratio de points correspondants
+  const minKeypoints = Math.min(keypoints1.size(), keypoints2.size())
+  const matchRatio = matches.length / minKeypoints
+  
+  // Inverser le ratio pour avoir un score de dégradation
+  // (0 = pas de dégradation, 1 = dégradation totale)
+  return 1.0 - matchRatio
 }
 
 // Calculer la différence de couleur

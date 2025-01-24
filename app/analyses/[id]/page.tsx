@@ -14,6 +14,7 @@ interface AnalysisPageProps {
 export default async function AnalysisPage({ params }: AnalysisPageProps) {
   const { id } = await params
 
+  // Récupérer l'analyse avec toutes les données nécessaires
   const analysis = await prisma.analysis.findUnique({
     where: { id },
     include: {
@@ -29,12 +30,22 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
   // Cast visualData to our type
   const visualData = analysis.visualData as VisualData | null
 
-  const existingResults = analysis.matchedZone ? {
-    matchedZone: analysis.matchedZone,
+  // Modifier la condition pour créer existingResults
+  const existingResults = analysis.visualData ? {
+    matchedZone: analysis.matchedZone || {},  // Fournir un objet vide si null
     degradationScore: analysis.degradationScore,
     colorDifference: analysis.colorDifference,
     visualData: visualData
   } : null
+
+  // Pour déboguer
+  console.log('Analysis Data on Page Load:', {
+    id: analysis.id,
+    hasMatchedZone: !!analysis.matchedZone,
+    hasVisualData: !!visualData,
+    existingResults: !!existingResults,
+    visualDataKeys: visualData ? Object.keys(visualData) : null
+  })
 
   return (
     <PageContainer>
@@ -50,7 +61,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
         </PageHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Première colonne : Images sources */}
+          {/* Première colonne : Images sources - toujours affichée */}
           <div className="space-y-8">
             <Card className="p-4">
               <h3 className="text-lg font-semibold mb-4">État d&apos;origine</h3>
@@ -81,52 +92,84 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
             </Card>
           </div>
 
-          {/* Deuxième colonne : Points détectés */}
-          {visualData && (
-            <div className="space-y-4">
-              <Card>
-                <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État d&apos;origine</h3>
-                <div className="relative aspect-video w-full overflow-hidden p-4">
-                  <Image
-                    src={visualData.originalKeypoints}
-                    alt="Points détectés - État d'origine"
-                    fill
-                    className="object-cover"
-                  />
+          {/* Colonnes d'analyse - affichées uniquement si l'analyse a été effectuée */}
+          {analysis.matchedZone && visualData ? (
+            <>
+              {/* Deuxième colonne : Points détectés */}
+              <div className="space-y-4">
+                <Card>
+                  <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État d&apos;origine</h3>
+                  <div className="relative aspect-video w-full overflow-hidden p-4">
+                    <Image
+                      src={visualData.originalKeypoints || visualData.keypointsOrigin}
+                      alt="Points détectés - État d'origine"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </Card>
+
+                <Card>
+                  <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État comparé</h3>
+                  <div className="relative aspect-video w-full overflow-hidden p-4">
+                    <Image
+                      src={visualData.comparedKeypoints || visualData.keypointsCompared}
+                      alt="Points détectés - État comparé"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </Card>
+              </div>
+
+              {/* Troisième colonne : Images recadrées */}
+              <div className="space-y-8">
+                <Card className="p-4">
+                  <h3 className="text-lg font-semibold mb-4">Zone alignée - État d&apos;origine</h3>
+                  {visualData.alignedOrigin && (
+                    <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                      <Image
+                        src={visualData.alignedOrigin}
+                        alt="Zone alignée - État d'origine"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </Card>
+
+                <Card className="p-4">
+                  <h3 className="text-lg font-semibold mb-4">Zone alignée - État comparé</h3>
+                  {visualData.alignedCompared && (
+                    <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                      <Image
+                        src={visualData.alignedCompared}
+                        alt="Zone alignée - État comparé"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </Card>
+              </div>
+            </>
+          ) : (
+            <div className="md:col-span-2">
+              <Card className="p-6">
+                <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                  <p className="text-lg text-muted-foreground mb-2">
+                    Lancez l&apos;analyse pour voir les résultats détaillés
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Les points détectés et les zones alignées s&apos;afficheront ici
+                  </p>
                 </div>
-              </Card>
-
-              <Card>
-                <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État comparé</h3>
-                <div className="relative aspect-video w-full overflow-hidden p-4">
-                  <Image
-                    src={visualData.comparedKeypoints}
-                    alt="Points détectés - État comparé"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* Troisième colonne : Images recadrées (à implémenter) */}
-          {analysis.matchedZone && (
-            <div className="space-y-8">
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Zone alignée - État d&apos;origine</h3>
-                {/* À implémenter : image recadrée d'origine */}
-              </Card>
-
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Zone alignée - État comparé</h3>
-                {/* À implémenter : image recadrée comparée */}
               </Card>
             </div>
           )}
         </div>
 
-        {/* Résultats de l'analyse en bas si nécessaire */}
+        {/* Résultats de l'analyse - affichés uniquement si l'analyse a été effectuée */}
         {analysis.matchedZone && (
           <Card className="mt-8 p-6">
             <h3 className="text-lg font-semibold mb-4">Résultats de l&apos;analyse</h3>

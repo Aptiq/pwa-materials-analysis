@@ -9,26 +9,71 @@ export async function POST(
   try {
     const { id } = context.params
     const data = await request.json()
-    console.log("Sauvegarde de l'analyse:", id, data)
-
-    const analysis = await prisma.analysis.update({
-      where: { id },
-      data: {
-        matchedZone: data.matchedZone,
-        degradationScore: data.degradationScore,
-        colorDifference: data.colorDifference,
-        visualData: data.visualData,
-      },
+    
+    // Log détaillé des données reçues
+    console.log("Données reçues pour sauvegarde:", {
+      id,
+      matchedZone: data.matchedZone,
+      degradationScore: data.degradationScore,
+      colorDifference: data.colorDifference,
+      visualData: data.visualData ? Object.keys(data.visualData) : null
     })
 
-    console.log("Analyse mise à jour:", analysis)
-    revalidatePath(`/analyses/${id}`)
+    // Vérification plus souple des données
+    if (!data) {
+      throw new Error("Aucune donnée reçue")
+    }
 
-    return Response.json(analysis)
+    // Préparation des données avec vérification
+    const updateData = {
+      matchedZone: data.matchedZone || null,
+      degradationScore: data.degradationScore || null,
+      colorDifference: data.colorDifference || null,
+      visualData: data.visualData ? {
+        image1: data.visualData.image1 || null,
+        image2: data.visualData.image2 || null,
+        alignedImage: data.visualData.alignedImage || null,
+        keypointsOrigin: data.visualData.keypointsOrigin || null,
+        keypointsCompared: data.visualData.keypointsCompared || null
+      } : null,
+      updatedAt: new Date()
+    }
+
+    console.log("Données préparées pour mise à jour:", updateData)
+
+    // Tentative de mise à jour
+    const analysis = await prisma.analysis.update({
+      where: { id },
+      data: updateData
+    })
+
+    console.log("Analyse mise à jour avec succès:", {
+      id: analysis.id,
+      hasMatchedZone: !!analysis.matchedZone,
+      hasVisualData: !!analysis.visualData
+    })
+
+    // Revalidation des chemins
+    revalidatePath(`/analyses/${id}`)
+    revalidatePath('/analyses/[id]')
+
+    return Response.json({
+      success: true,
+      analysis
+    })
+
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde:", error)
+    // Log détaillé de l'erreur
+    console.error("Erreur détaillée lors de la sauvegarde:", {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    })
+
     return Response.json(
-      { error: "Erreur lors de la sauvegarde des résultats" },
+      { 
+        error: "Erreur lors de la sauvegarde des résultats",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

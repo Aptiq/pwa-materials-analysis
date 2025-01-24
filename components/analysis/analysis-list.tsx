@@ -36,7 +36,7 @@ export function AnalysisList({ analyses }: { analyses: Analysis[] }) {
           <Button asChild>
             <Link href="/analyses/new">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nouvelle analyse
+              Créer une analyse
             </Link>
           </Button>
         </div>
@@ -45,12 +45,12 @@ export function AnalysisList({ analyses }: { analyses: Analysis[] }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {analyses.map((analysis) => (
         <Link key={analysis.id} href={`/analyses/${analysis.id}`}>
-          <Card className="overflow-hidden hover:bg-muted/50 transition-colors h-full">
-            <div className="relative aspect-[16/9] w-full">
-              <div className="grid h-full grid-cols-2 gap-2 p-2">
+          <Card className="overflow-hidden hover:bg-muted/50 transition-colors">
+            <div className="grid grid-cols-2 gap-2 p-2">
+              <div>
                 <div className="relative aspect-square w-full overflow-hidden rounded">
                   {analysis.originSubject.imageUrl ? (
                     <Image
@@ -66,6 +66,8 @@ export function AnalysisList({ analyses }: { analyses: Analysis[] }) {
                     </div>
                   )}
                 </div>
+              </div>
+              <div>
                 <div className="relative aspect-square w-full overflow-hidden rounded">
                   {analysis.comparedSubject.imageUrl ? (
                     <Image
