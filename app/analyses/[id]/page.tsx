@@ -101,7 +101,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
                   <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État d&apos;origine</h3>
                   <div className="relative aspect-video w-full overflow-hidden p-4">
                     <Image
-                      src={visualData.originalKeypoints || visualData.keypointsOrigin}
+                      src={visualData.originalKeypoints || visualData.image1}
                       alt="Points détectés - État d'origine"
                       fill
                       className="object-cover"
@@ -113,7 +113,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
                   <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État comparé</h3>
                   <div className="relative aspect-video w-full overflow-hidden p-4">
                     <Image
-                      src={visualData.comparedKeypoints || visualData.keypointsCompared}
+                      src={visualData.comparedKeypoints || visualData.image2}
                       alt="Points détectés - État comparé"
                       fill
                       className="object-cover"
