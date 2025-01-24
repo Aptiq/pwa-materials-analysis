@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { cn } from "@/lib/utils"
+import type { Mat } from "@techstark/opencv-js"
 
 // Déclaration du type OpenCV
 declare global {
@@ -45,7 +46,7 @@ export function AnalyzeButton({
 }: AnalyzeButtonProps) {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(existingResults)
-  const cv = useCv() as typeof window.cv
+  const cv = useCv()
   const router = useRouter()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -68,8 +69,8 @@ export function AnalyzeButton({
       return
     }
 
-    let mat1: any = null
-    let mat2: any = null
+    let mat1: Mat | null = null
+    let mat2: Mat | null = null
 
     try {
       setLoading(true)
