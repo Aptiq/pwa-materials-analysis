@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
 import { Card } from "@/components/ui/card"
 import Image from "next/image"
-import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/layout/page-header"
 import { Analysis, VisualData } from "@/types/analysis"
 
@@ -48,7 +47,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
   })
 
   return (
-    <PageContainer>
+    <main className="py-8 px-4 md:py-16 md:px-0 space-y-6 md:space-y-8">
       <div className="max-w-5xl mx-auto px-4">
         <PageHeader title="Analyse">
           <AnalyzeButton 
@@ -196,6 +195,6 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
           </Card>
         )}
       </div>
-    </PageContainer>
+    </main>
   )
 } 
