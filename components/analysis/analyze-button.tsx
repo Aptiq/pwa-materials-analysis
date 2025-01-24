@@ -9,11 +9,12 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { cn } from "@/lib/utils"
+import type { Mat, KeyPointVector } from "@techstark/opencv-js"
 
 interface DetectionResult {
-  keypoints: cv.KeyPointVector;
-  descriptors: cv.Mat;
-  visualResult: cv.Mat;
+  keypoints: KeyPointVector
+  descriptors: Mat
+  visualResult: Mat
 }
 
 interface AnalyzeButtonProps {
@@ -61,8 +62,8 @@ export function AnalyzeButton({
       return
     }
 
-    let mat1: ReturnType<typeof cv.imread> | null = null
-    let mat2: ReturnType<typeof cv.imread> | null = null
+    let mat1: Mat | null = null
+    let mat2: Mat | null = null
 
     try {
       setLoading(true)
