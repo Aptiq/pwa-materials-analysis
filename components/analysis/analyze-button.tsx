@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { useCv } from "@/components/cv-provider"
@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { Search } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Déclaration du type global pour TypeScript
 declare global {
@@ -45,7 +46,7 @@ export function AnalyzeButton({
 }: AnalyzeButtonProps) {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(existingResults)
-  const cvReady = useCv()
+  const cv = useCv()
   const router = useRouter()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,28 +63,16 @@ export function AnalyzeButton({
     existingResults?.degradationScore || null
   )
 
-  const loadImage = (url: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
-      img.crossOrigin = "anonymous"  // Important pour les images externes
-      img.onload = () => resolve(img)
-      img.onerror = () => reject(new Error("Erreur de chargement de l'image"))
-      img.src = url
-    })
-  }
-
-  const handleAnalyze = async () => {
-    let mat1: cv.Mat | null = null
-    let mat2: cv.Mat | null = null
+  const analyze = useCallback(async () => {
+    if (!cv || !originImageUrl || !comparedImageUrl) {
+      toast.error("Images non disponibles")
+      return
+    }
 
     try {
+      setLoading(true)
       setIsAnalyzing(true)
       setError(null)
-
-      // Charger OpenCV si ce n'est pas déjà fait
-      if (!cvReady) {
-        await cvReady
-      }
 
       // Charger les images
       const [img1, img2] = await Promise.all([
@@ -92,8 +81,8 @@ export function AnalyzeButton({
       ])
 
       // Convertir les images en matrices OpenCV
-      mat1 = window.cv.imread(img1)
-      mat2 = window.cv.imread(img2)
+      const mat1 = window.cv.imread(img1)
+      const mat2 = window.cv.imread(img2)
 
       // Analyser les images avec alignement automatique
       const result = await analyzeImages(mat1, mat2)
@@ -160,9 +149,9 @@ export function AnalyzeButton({
       router.refresh()
 
     } catch (error) {
-      console.error("Erreur détaillée lors de l'analyse:", error)
+      console.error("Erreur lors de l'analyse:", error)
       setError(error instanceof Error ? error.message : "Une erreur est survenue")
-      toast.error("Erreur lors de l'analyse")
+      toast.error("Une erreur est survenue lors de l'analyse")
     } finally {
       // Nettoyer les matrices OpenCV
       if (window.cv) {
@@ -170,28 +159,32 @@ export function AnalyzeButton({
         mat2?.delete()
       }
       setIsAnalyzing(false)
+      setLoading(false)
     }
-  }
+  }, [cv, originImageUrl, comparedImageUrl, analysisId, router])
 
   const isAnalyzed = Boolean(existingResults?.visualData)
 
   return (
     <div className="space-y-4">
       <Button 
-        onClick={handleAnalyze} 
-        disabled={isAnalyzing || !cvReady || !originImageUrl || !comparedImageUrl || isAnalyzed}
+        onClick={analyze}
+        disabled={disabled || loading || !originImageUrl || !comparedImageUrl}
+        className={cn("min-w-[140px]", {
+          "opacity-50 cursor-not-allowed": disabled || !originImageUrl || !comparedImageUrl
+        })}
       >
-        {isAnalyzing ? (
+        {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Analyse en cours...
           </>
-        ) : isAnalyzed ? (
-          "Analyse déjà effectuée"
+        ) : existingResults ? (
+          "Relancer l'analyse"
         ) : (
           <>
             <Search className="mr-2 h-4 w-4" />
-            Analyser les images
+            Lancer l'analyse
           </>
         )}
       </Button>
