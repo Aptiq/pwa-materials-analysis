@@ -16,6 +16,12 @@ declare global {
   }
 }
 
+interface DetectionResult {
+  keypoints: cv.KeyPointVector;
+  descriptors: cv.Mat;
+  visualResult: cv.Mat;
+}
+
 interface AnalyzeButtonProps {
   analysisId: string
   disabled?: boolean
@@ -61,8 +67,8 @@ export function AnalyzeButton({
       const mat2 = window.cv.imread(img2)
       
       // Détecter les points clés
-      const result1 = await detectKeypoints(mat1)
-      const result2 = await detectKeypoints(mat2)
+      const result1 = await detectKeypoints(mat1) as DetectionResult
+      const result2 = await detectKeypoints(mat2) as DetectionResult
       
       // Convertir les visualisations en base64
       const visual1 = matToBase64(result1.visualResult)

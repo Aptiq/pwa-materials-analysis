@@ -93,14 +93,13 @@ export async function analyzeImages(image1Url: string, image2Url: string) {
 }
 
 export async function detectKeypoints(imageData: cv.Mat): Promise<{
-  keypoints: cv.KeyPointVector,
-  descriptors: cv.Mat
+  keypoints: cv.KeyPointVector;
+  descriptors: cv.Mat;
+  visualResult: cv.Mat;
 }> {
   let gray = new cv.Mat()
-  let keypoints: cv.KeyPointVector | null = null
-  let descriptors: cv.Mat | null = null
-  let visualResult: cv.Mat | null = null
-
+  let visualResult = imageData.clone()
+  
   try {
     console.log("Début de la détection des points clés...")
     
@@ -111,27 +110,24 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
     const akaze = new cv.AKAZE()
     
     // 3. Détecter les points clés
-    keypoints = new cv.KeyPointVector()
-    descriptors = new cv.Mat()
+    const keypoints = akaze.detect(gray)
     
-    // 4. Détecter et calculer les descripteurs
-    akaze.detectAndCompute(gray, new cv.Mat(), keypoints, descriptors)
-    
-    console.log(`Nombre de points clés détectés : ${keypoints.size()}`)
+    // 4. Calculer les descripteurs
+    const descriptors = new cv.Mat()
+    akaze.compute(gray, keypoints, descriptors)
 
-    // 5. Visualiser les points clés
-    visualResult = visualizeKeypoints(imageData, keypoints)
-    
+    // 5. Dessiner les points clés sur l'image de résultat
+    // TODO: Ajouter le code pour dessiner les points clés sur visualResult
+
     return {
       keypoints,
       descriptors,
       visualResult
     }
   } catch (error) {
-    console.error("Erreur lors de la détection des points clés:", error)
+    gray.delete()
+    visualResult.delete()
     throw error
-  } finally {
-    if (gray) gray.delete()
   }
 }
 
