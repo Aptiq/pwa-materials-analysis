@@ -1,13 +1,41 @@
 'use client'
 
-import type { Mat, Point2, DMatchVector, DMatchVectorVector, KeyPointVector } from "@techstark/opencv-js"
 import { VisualData } from "@/types/analysis"
 
+type OpenCVMat = {
+  delete(): void
+  rows: number
+  cols: number
+}
+
+type OpenCVPoint2 = {
+  x: number
+  y: number
+}
+
+type OpenCVKeyPointVector = {
+  size(): number
+  get(index: number): any
+  delete(): void
+}
+
+type OpenCVDMatchVector = {
+  size(): number
+  get(index: number): any
+  delete(): void
+}
+
+type OpenCVDMatchVectorVector = {
+  size(): number
+  get(index: number): OpenCVDMatchVector
+  delete(): void
+}
+
 interface AlignmentResult {
-  homography: Mat
+  homography: OpenCVMat
   matchedKeypoints: {
-    origin: Point2[]
-    compared: Point2[]
+    origin: OpenCVPoint2[]
+    compared: OpenCVPoint2[]
   }
 }
 
@@ -147,8 +175,8 @@ function matchKeypoints(descriptors1: cv.Mat, descriptors2: cv.Mat): cv.DMatch[]
 }
 
 export async function analyzeImages(
-  originImage: Mat,
-  comparedImage: Mat
+  originImage: OpenCVMat,
+  comparedImage: OpenCVMat
 ): Promise<AnalysisResult> {
   try {
     // 1. D'abord aligner l'image2 sur l'image1
@@ -207,8 +235,8 @@ export async function analyzeImages(
   }
 }
 
-export async function detectKeypoints(image: Mat): Promise<{
-  keypoints: cv.KeyPointVector;
+export async function detectKeypoints(image: OpenCVMat): Promise<{
+  keypoints: OpenCVKeyPointVector;
   descriptors: cv.Mat;
   visualResult: cv.Mat;
 }> {
@@ -326,7 +354,7 @@ function calculateColorDifference(mat1: cv.Mat, mat2: cv.Mat, matchedZone: any) 
 }
 
 // Fonction utilitaire pour convertir une Mat en base64
-export function matToBase64(mat: Mat): string {
+export function matToBase64(mat: OpenCVMat): string {
   const canvas = document.createElement('canvas')
   const size = mat.size()
   canvas.width = size.width
