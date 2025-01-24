@@ -1,19 +1,24 @@
 'use client'
 
+import { Mat, Point2 } from "@techstark/opencv-js"
+import { VisualData } from "@/types/analysis"
+
 interface AlignmentResult {
   alignedImage: cv.Mat;
   homography?: cv.Mat;  // Matrice de transformation
   success: boolean;
 }
 
-interface AnalysisResult {
-  error?: string;
-  degradationScore?: number;
-  visualData?: {
-    image1: string;
-    image2: string;
-    alignedImage?: string;
-  };
+export interface AnalysisResult {
+  matchedZone: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
+  degradationScore: number
+  colorDifference: number
+  visualData: VisualData
 }
 
 async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentResult> {
@@ -135,27 +140,45 @@ function matchKeypoints(descriptors1: cv.Mat, descriptors2: cv.Mat): cv.DMatch[]
   }
 }
 
-export async function analyzeImages(image1: cv.Mat, image2: cv.Mat): Promise<AnalysisResult> {
+export async function analyzeImages(
+  originImage: Mat,
+  comparedImage: Mat
+): Promise<AnalysisResult> {
   try {
     // 1. D'abord aligner l'image2 sur l'image1
-    const alignmentResult = await alignImages(image2, image1)
+    const alignmentResult = await alignImages(comparedImage, originImage)
     
     if (!alignmentResult.success) {
       return {
-        error: "Impossible d'aligner les images. Assurez-vous que les photos montrent la même zone du matériau."
+        matchedZone: { x: 0, y: 0, width: 0, height: 0 },
+        degradationScore: 1.0,
+        colorDifference: 0,
+        visualData: {
+          image1: "",
+          image2: "",
+          alignedImage: ""
+        }
       }
     }
     
     // 2. Maintenant on peut procéder à l'analyse sur des images alignées
-    const result1 = await detectKeypoints(image1)
+    const result1 = await detectKeypoints(originImage)
     const result2 = await detectKeypoints(alignmentResult.alignedImage)
     
     // 3. Calculer le score de dégradation
     const matches = matchKeypoints(result1.descriptors, result2.descriptors)
     const score = calculateDegradationScore(matches, result1.keypoints, result2.keypoints)
     
+    // 4. Calculer la zone correspondante
+    const matchedZone = calculateMatchedZone(result1.keypoints, result2.keypoints, matches)
+    
+    // 5. Calculer la différence de couleur
+    const colorDifference = calculateColorDifference(originImage, alignmentResult.alignedImage, matchedZone)
+    
     return {
+      matchedZone,
       degradationScore: score,
+      colorDifference,
       visualData: {
         image1: matToBase64(result1.visualResult),
         image2: matToBase64(result2.visualResult),
@@ -165,12 +188,19 @@ export async function analyzeImages(image1: cv.Mat, image2: cv.Mat): Promise<Ana
   } catch (error) {
     console.error("Erreur lors de l'analyse:", error)
     return {
-      error: "Une erreur est survenue lors de l'analyse des images"
+      matchedZone: { x: 0, y: 0, width: 0, height: 0 },
+      degradationScore: 1.0,
+      colorDifference: 0,
+      visualData: {
+        image1: "",
+        image2: "",
+        alignedImage: ""
+      }
     }
   }
 }
 
-export async function detectKeypoints(imageData: cv.Mat): Promise<{
+export async function detectKeypoints(image: Mat): Promise<{
   keypoints: cv.KeyPointVector;
   descriptors: cv.Mat;
   visualResult: cv.Mat;
@@ -184,10 +214,10 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
     console.log("Début de la détection des points clés...")
     
     // Copier l'image d'entrée pour le résultat visuel
-    imageData.copyTo(visualResult)
+    image.copyTo(visualResult)
     
     // 1. Convertir l'image en niveaux de gris
-    cv.cvtColor(imageData, gray, cv.COLOR_RGBA2GRAY)
+    cv.cvtColor(image, gray, cv.COLOR_RGBA2GRAY)
     
     // 2. Initialiser le détecteur AKAZE
     const akaze = new cv.AKAZE()
@@ -199,7 +229,7 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
     akaze.compute(gray, keypoints, descriptors)
 
     // 5. Visualiser les points clés
-    visualResult = visualizeKeypoints(imageData, keypoints)
+    visualResult = visualizeKeypoints(image, keypoints)
 
     return {
       keypoints,
@@ -289,7 +319,7 @@ function calculateColorDifference(mat1: cv.Mat, mat2: cv.Mat, matchedZone: any) 
 }
 
 // Fonction utilitaire pour convertir une Mat en base64
-export function matToBase64(mat: cv.Mat): string {
+export function matToBase64(mat: Mat): string {
   const canvas = document.createElement('canvas')
   const size = mat.size()
   canvas.width = size.width
