@@ -138,10 +138,11 @@ function visualizeKeypoints(image: cv.Mat, keypoints: cv.KeyPointVector): cv.Mat
   const visual = new cv.Mat()
   image.copyTo(visual)
   
+  // Dessiner les points clés en rouge
+  const color = new cv.Scalar(255, 0, 0, 255)
   for (let i = 0; i < keypoints.size(); i++) {
     const kp = keypoints.get(i)
-    // TODO: Dessiner un cercle ou un point pour chaque keypoint
-    // Nous aurons besoin d'ajouter les fonctions de dessin dans les types
+    cv.circle(visual, kp.pt, 3, color, 1)
   }
   
   return visual
@@ -196,8 +197,9 @@ function calculateColorDifference(mat1: cv.Mat, mat2: cv.Mat, matchedZone: any) 
 // Fonction utilitaire pour convertir une Mat en base64
 export function matToBase64(mat: cv.Mat): string {
   const canvas = document.createElement('canvas')
-  canvas.width = mat.cols
-  canvas.height = mat.rows
+  const size = mat.size()
+  canvas.width = size.width
+  canvas.height = size.height
   
   cv.imshow(canvas, mat)
   
