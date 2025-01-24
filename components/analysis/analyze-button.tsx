@@ -22,6 +22,13 @@ type OpenCVKeyPointVector = {
   delete(): void
 }
 
+interface OpenCV {
+  imread(img: HTMLImageElement): OpenCVMat
+  imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
+  Mat: new () => OpenCVMat
+  KeyPointVector: new () => OpenCVKeyPointVector
+}
+
 interface DetectionResult {
   keypoints: OpenCVKeyPointVector
   descriptors: OpenCVMat
@@ -50,7 +57,7 @@ export function AnalyzeButton({
 }: AnalyzeButtonProps) {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(existingResults)
-  const cv = useCv()
+  const cv = useCv() as unknown as OpenCV
   const router = useRouter()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
