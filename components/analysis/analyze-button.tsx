@@ -9,7 +9,6 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { cn } from "@/lib/utils"
-import type { Mat } from "@techstark/opencv-js"
 
 // Déclaration du type OpenCV
 declare global {
@@ -69,8 +68,8 @@ export function AnalyzeButton({
       return
     }
 
-    let mat1: Mat | null = null
-    let mat2: Mat | null = null
+    let mat1: ReturnType<typeof cv.imread> | null = null
+    let mat2: ReturnType<typeof cv.imread> | null = null
 
     try {
       setLoading(true)
