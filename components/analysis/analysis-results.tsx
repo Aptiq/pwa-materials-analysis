@@ -11,26 +11,21 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { useEffect, useState } from "react"
 
-type AnalysisResult = {
-  matchedZone: {
-    x: number
-    y: number
-    width: number
-    height: number
-  } | null
-  degradationScore: number | null
-  colorDifference: number | null
-  visualData?: {
-    image1: string | null
-    image2: string | null
-    alignedImage: string | null
-  }
+interface VisualData {
+  image1: string | null
+  image2: string | null
+  alignedImage: string | null
+  keypointsOrigin?: string | null
+  keypointsCompared?: string | null
+  alignedOrigin?: string | null
+  alignedCompared?: string | null
 }
 
 interface AnalysisResultsProps {
-  originImage?: string | null
-  comparedImage?: string | null
-  results?: AnalysisResult
+  matchedZone: Record<string, any> | null
+  degradationScore: number | null
+  colorDifference: number | null
+  visualData: VisualData | null | undefined
 }
 
 // Composant d'image sécurisé avec validation plus stricte
@@ -73,15 +68,11 @@ const SafeImage = ({ src, alt, ...props }: { src: string | null | undefined, alt
   }
 }
 
-export function AnalysisResults({ 
-  originImage = null, 
-  comparedImage = null, 
-  results = {
-    matchedZone: null,
-    degradationScore: null,
-    colorDifference: null,
-    visualData: null
-  }
+export function AnalysisResults({
+  matchedZone = null,
+  degradationScore = null,
+  colorDifference = null,
+  visualData = undefined
 }: AnalysisResultsProps) {
   
   // Nettoyage des données d'entrée
@@ -93,15 +84,20 @@ export function AnalysisResults({
   }
 
   // Préparation des URLs nettoyées
-  const cleanOriginImage = cleanImageUrl(originImage)
-  const cleanComparedImage = cleanImageUrl(comparedImage)
-  const cleanVisualData = results?.visualData ? {
-    image1: cleanImageUrl(results.visualData.image1),
-    image2: cleanImageUrl(results.visualData.image2)
+  const cleanOriginImage = cleanImageUrl(matchedZone?.x)
+  const cleanComparedImage = cleanImageUrl(matchedZone?.y)
+  const cleanVisualData = visualData ? {
+    image1: cleanImageUrl(visualData.image1),
+    image2: cleanImageUrl(visualData.image2),
+    alignedImage: cleanImageUrl(visualData.alignedImage),
+    keypointsOrigin: cleanImageUrl(visualData.keypointsOrigin),
+    keypointsCompared: cleanImageUrl(visualData.keypointsCompared),
+    alignedOrigin: cleanImageUrl(visualData.alignedOrigin),
+    alignedCompared: cleanImageUrl(visualData.alignedCompared)
   } : null
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Visualisation des images */}
       <Card>
         <CardHeader>
@@ -210,20 +206,20 @@ export function AnalysisResults({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {results.degradationScore !== null ? (
+            {degradationScore !== null ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Score</span>
                   <span className="font-medium">
-                    {results.degradationScore.toFixed(2)}
+                    {degradationScore.toFixed(2)}
                   </span>
                 </div>
                 <Progress 
-                  value={results.degradationScore * 100} 
+                  value={degradationScore * 100} 
                   className="h-2"
                 />
                 <p className="text-sm text-muted-foreground">
-                  {interpretDegradationScore(results.degradationScore)}
+                  {interpretDegradationScore(degradationScore)}
                 </p>
               </div>
             ) : (
@@ -242,20 +238,20 @@ export function AnalysisResults({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {results.colorDifference !== null ? (
+            {colorDifference !== null ? (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>ΔE</span>
                   <span className="font-medium">
-                    {results.colorDifference.toFixed(2)}
+                    {colorDifference.toFixed(2)}
                   </span>
                 </div>
                 <Progress 
-                  value={Math.min(results.colorDifference * 10, 100)} 
+                  value={Math.min(colorDifference * 10, 100)} 
                   className="h-2"
                 />
                 <p className="text-sm text-muted-foreground">
-                  {interpretColorDifference(results.colorDifference)}
+                  {interpretColorDifference(colorDifference)}
                 </p>
               </div>
             ) : (
@@ -284,4 +280,12 @@ function interpretColorDifference(delta: number): string {
   if (delta < 5) return "Différence perceptible"
   if (delta < 10) return "Différence significative"
   return "Différence majeure"
+}
+
+// Valeurs par défaut pour les props
+AnalysisResults.defaultProps = {
+  matchedZone: null,
+  degradationScore: null,
+  colorDifference: null,
+  visualData: undefined
 } 
