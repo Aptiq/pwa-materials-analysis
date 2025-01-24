@@ -151,4 +151,36 @@ declare module '@techstark/opencv-js' {
     octave: number
     class_id: number
   }
-} 
+
+  export interface DMatch {
+    queryIdx: number
+    trainIdx: number
+    distance: number
+  }
+
+  export interface Vector<T> {
+    size(): number
+    get(index: number): T
+    delete(): void
+  }
+
+  export type KeyPointVector = Vector<KeyPoint>
+  export type DMatchVector = Vector<DMatch>
+  export type DMatchVectorVector = Vector<DMatchVector>
+}
+
+declare global {
+  interface Window {
+    cv: {
+      Mat: new () => Mat
+      KeyPointVector: new () => KeyPointVector
+      DMatchVector: new () => DMatchVector
+      DMatchVectorVector: new () => DMatchVectorVector
+      imread(img: HTMLImageElement): Mat
+      imshow(canvas: HTMLCanvasElement, mat: Mat): void
+      // ... autres méthodes OpenCV nécessaires
+    }
+  }
+}
+
+export {} 

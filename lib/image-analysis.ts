@@ -1,6 +1,6 @@
 'use client'
 
-import type { Mat, Point2 } from "@techstark/opencv-js"
+import type { Mat, Point2, DMatchVector, DMatchVectorVector, KeyPointVector } from "@techstark/opencv-js"
 import { VisualData } from "@/types/analysis"
 
 interface AlignmentResult {
