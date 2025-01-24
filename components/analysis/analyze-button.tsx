@@ -22,11 +22,25 @@ type OpenCVKeyPointVector = {
   delete(): void
 }
 
+type OpenCVDMatchVector = {
+  size(): number
+  get(index: number): any
+  delete(): void
+}
+
+type OpenCVDMatchVectorVector = {
+  size(): number
+  get(index: number): OpenCVDMatchVector
+  delete(): void
+}
+
 interface OpenCV {
   imread(img: HTMLImageElement): OpenCVMat
   imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
   Mat: new () => OpenCVMat
   KeyPointVector: new () => OpenCVKeyPointVector
+  DMatchVector: new () => OpenCVDMatchVector
+  DMatchVectorVector: new () => OpenCVDMatchVectorVector
 }
 
 interface DetectionResult {
