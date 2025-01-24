@@ -29,6 +29,13 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
   // Cast visualData to our type
   const visualData = analysis.visualData as VisualData | null
 
+  const existingResults = analysis.matchedZone ? {
+    matchedZone: analysis.matchedZone,
+    degradationScore: analysis.degradationScore,
+    colorDifference: analysis.colorDifference,
+    visualData: visualData
+  } : null
+
   return (
     <PageContainer>
       <div className="max-w-5xl mx-auto px-4">
@@ -38,12 +45,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
             disabled={!analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl}
             originImageUrl={analysis.originSubject.imageUrl}
             comparedImageUrl={analysis.comparedSubject.imageUrl}
-            existingResults={analysis.matchedZone ? {
-              matchedZone: analysis.matchedZone,
-              degradationScore: analysis.degradationScore,
-              colorDifference: analysis.colorDifference,
-              visualData: visualData
-            } : null}
+            existingResults={existingResults}
           />
         </PageHeader>
 

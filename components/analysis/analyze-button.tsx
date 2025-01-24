@@ -7,6 +7,7 @@ import { useCv } from "@/components/cv-provider"
 import { detectKeypoints, matToBase64 } from "@/lib/image-analysis"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { VisualData } from "@/types/analysis"
 
 // Déclaration du type global pour TypeScript
 declare global {
@@ -24,12 +25,7 @@ interface AnalyzeButtonProps {
     matchedZone: any
     degradationScore: number | null
     colorDifference: number | null
-    visualData?: {
-      originalKeypoints: string
-      comparedKeypoints: string
-      originalCount: number
-      comparedCount: number
-    }
+    visualData: VisualData | null
   } | null
 }
 
