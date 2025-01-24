@@ -1,69 +1,49 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  console.log("API: Début de la requête") // Log A
+  
   try {
-    const data = await request.json()
-    const { originSubjectId, comparedSubjectId } = data
+    const body = await request.json()
+    console.log("API: Corps de la requête:", body) // Log B
 
-    if (!originSubjectId || !comparedSubjectId) {
-      return NextResponse.json(
-        { error: 'Les IDs des états sont requis' },
+    if (!body.originSubjectId || !body.comparedSubjectId) {
+      console.log("API: IDs manquants") // Log C
+      return Response.json(
+        { error: "Les IDs des sujets sont requis" },
         { status: 400 }
       )
     }
 
-    // Vérifier que les deux états existent
-    const [originState, comparedState] = await Promise.all([
-      prisma.subject.findUnique({ where: { id: originSubjectId } }),
-      prisma.subject.findUnique({ where: { id: comparedSubjectId } })
-    ])
-
-    if (!originState || !comparedState) {
-      return NextResponse.json(
-        { error: 'Un ou plusieurs états sont introuvables' },
-        { status: 400 }
-      )
-    }
-
-    // Créer l'analyse
+    console.log("API: Création de l'analyse...") // Log D
     const analysis = await prisma.analysis.create({
       data: {
-        originSubjectId,
-        comparedSubjectId,
-        matchedZone: Prisma.JsonNull,
+        originSubjectId: body.originSubjectId,
+        comparedSubjectId: body.comparedSubjectId,
+        matchedZone: null,
         degradationScore: null,
         colorDifference: null,
-        originSubject: {
-          create: {
-            title: "Image originale",
-            imageUrl: null,
-          }
-        },
-        comparedSubject: {
-          create: {
-            title: "Image à comparer",
-            imageUrl: null,
-          }
-        }
+        visualData: null,
       },
       include: {
         originSubject: true,
         comparedSubject: true,
-      },
+      }
     })
 
+    console.log("API: Analyse créée avec succès:", analysis) // Log E
     revalidatePath('/analyses')
-    return NextResponse.json(analysis)
 
+    return Response.json(analysis)
   } catch (error) {
-    console.error('Error creating analysis:', error)
-    return NextResponse.json(
-      { error: 'Une erreur est survenue lors de la création de l\'analyse' },
+    console.log("API: Erreur lors de la création:", error) // Log F
+    return Response.json(
+      { error: "Erreur lors de la création de l'analyse" },
       { status: 500 }
     )
   }

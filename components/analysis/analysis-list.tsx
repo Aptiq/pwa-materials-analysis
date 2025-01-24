@@ -48,47 +48,51 @@ export function AnalysisList({ analyses }: { analyses: Analysis[] }) {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {analyses.map((analysis) => (
         <Link key={analysis.id} href={`/analyses/${analysis.id}`}>
-          <Card className="hover:bg-muted/50 transition-colors">
-            <CardHeader className="grid grid-cols-2 gap-2">
-              <div className="relative aspect-square">
-                {analysis.originSubject.imageUrl ? (
-                  <Image
-                    src={analysis.originSubject.imageUrl}
-                    alt={analysis.originSubject.title}
-                    fill
-                    className="object-cover rounded"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-muted rounded">
-                    <FileQuestion className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
+          <Card className="overflow-hidden hover:bg-muted/50 transition-colors h-full">
+            <div className="relative aspect-[16/9] w-full">
+              <div className="grid h-full grid-cols-2 gap-2 p-2">
+                <div className="relative aspect-square w-full overflow-hidden rounded">
+                  {analysis.originSubject.imageUrl ? (
+                    <Image
+                      src={analysis.originSubject.imageUrl}
+                      alt={analysis.originSubject.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-muted">
+                      <FileQuestion className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="relative aspect-square w-full overflow-hidden rounded">
+                  {analysis.comparedSubject.imageUrl ? (
+                    <Image
+                      src={analysis.comparedSubject.imageUrl}
+                      alt={analysis.comparedSubject.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-muted">
+                      <FileQuestion className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="relative aspect-square">
-                {analysis.comparedSubject.imageUrl ? (
-                  <Image
-                    src={analysis.comparedSubject.imageUrl}
-                    alt={analysis.comparedSubject.title}
-                    fill
-                    className="object-cover rounded"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-muted rounded">
-                    <FileQuestion className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm">
-                <span className="font-medium">{analysis.originSubject.title}</span>
-                {" vs "}
-                <span className="font-medium">{analysis.comparedSubject.title}</span>
+            </div>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="line-clamp-1 text-base">
+                  {analysis.originSubject.title} vs {analysis.comparedSubject.title}
+                </CardTitle>
               </div>
               {analysis.degradationScore !== null && (
-                <div className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
                   Score de dégradation : {analysis.degradationScore.toFixed(2)}
-                </div>
+                </p>
               )}
               <div className="mt-1 text-xs text-muted-foreground">
                 {formatDate(analysis.createdAt)}

@@ -34,4 +34,5 @@ model Analysis {
   notes            String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  visualData       Json?    // Nouveau champ pour stocker les données de visualisation
 } 

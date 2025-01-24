@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import { SiteHeader } from "@/components/site-header"
 import { Toaster } from "@/components/ui/toaster"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
+import { CvProvider } from "@/components/cv-provider"
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -50,21 +51,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col bg-background">
-            <SiteHeader />
-            <main className="flex-1">
-              <div className="container relative">
-                {children}
-              </div>
-            </main>
-            <footer className="border-t py-6 md:py-0">
-              <div className="container flex h-14 items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  © {new Date().getFullYear()} Votre App. Tous droits réservés.
-                </p>
-              </div>
-            </footer>
-          </div>
+          <CvProvider>
+            <div className="relative flex min-h-screen flex-col bg-background">
+              <SiteHeader />
+              <main className="flex-1">
+                <div className="container relative">
+                  {children}
+                </div>
+              </main>
+              <footer className="border-t py-6 md:py-0">
+                <div className="container flex h-14 items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    © {new Date().getFullYear()} Votre App. Tous droits réservés.
+                  </p>
+                </div>
+              </footer>
+            </div>
+          </CvProvider>
           <Toaster />
           <PWAInstallPrompt />
         </ThemeProvider>

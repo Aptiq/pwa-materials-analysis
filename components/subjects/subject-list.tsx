@@ -23,25 +23,31 @@ export function SubjectList({ subjects }: { subjects: Subject[] }) {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {subjects.map((subject) => (
         <Link key={subject.id} href={`/materials/${subject.id}`}>
-          <Card className="hover:bg-muted/50 transition-colors">
-            <CardHeader className="relative aspect-video w-full overflow-hidden">
-              {subject.imageUrl ? (
-                <Image
-                  src={subject.imageUrl}
-                  alt={subject.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center bg-muted">
-                  <FileQuestion className="h-12 w-12 text-muted-foreground" />
+          <Card className="overflow-hidden hover:bg-muted/50 transition-colors h-[280px]">
+            <div className="relative aspect-[16/9] w-full">
+              <div className="h-full p-2">
+                <div className="relative h-full w-full overflow-hidden rounded">
+                  {subject.imageUrl ? (
+                    <Image
+                      src={subject.imageUrl}
+                      alt={subject.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-muted">
+                      <FileQuestion className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
                 </div>
-              )}
-            </CardHeader>
-            <CardContent>
+              </div>
+            </div>
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="line-clamp-1">{subject.title}</CardTitle>
+                <CardTitle className="line-clamp-1 text-base">
+                  {subject.title}
+                </CardTitle>
                 {subject.childSubjects.length > 0 && (
                   <Badge variant="secondary">
                     {subject.childSubjects.length} version{subject.childSubjects.length > 1 ? 's' : ''}
@@ -59,4 +65,37 @@ export function SubjectList({ subjects }: { subjects: Subject[] }) {
       ))}
     </div>
   )
+}
+
+// Ajouter un gestionnaire d'erreur et des logs
+const loadOpenCv = async () => {
+  try {
+    if (typeof window === 'undefined') return
+    
+    console.log("Début du chargement d'OpenCV...")
+    await loadOpenCvScript()
+    console.log("OpenCV chargé avec succès")
+    
+    // Vérifier si cv est bien disponible
+    if (window.cv) {
+      console.log("OpenCV est prêt à être utilisé")
+    } else {
+      console.error("OpenCV n'est pas disponible après le chargement")
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement d'OpenCV:", error)
+  }
+}
+
+const loadOpenCvWithTimeout = async () => {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("Timeout lors du chargement d'OpenCV")), 10000)
+  })
+  
+  try {
+    await Promise.race([loadOpenCv(), timeout])
+  } catch (error) {
+    console.error(error)
+    // Gérer l'erreur (afficher un message à l'utilisateur, etc.)
+  }
 } 

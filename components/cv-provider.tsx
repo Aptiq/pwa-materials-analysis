@@ -17,21 +17,23 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
   const [cvReady, setCvReady] = useState(false)
 
   useEffect(() => {
-    // Configuration du module OpenCV
-    window.Module = {
-      onRuntimeInitialized: () => {
-        console.log('OpenCV Runtime initialisé')
+    const checkCv = setInterval(() => {
+      if (window.cv) {
+        console.log('OpenCV est disponible')
         setCvReady(true)
+        clearInterval(checkCv)
         toast.success('OpenCV chargé avec succès')
       }
-    }
+    }, 100)
+
+    return () => clearInterval(checkCv)
   }, [])
 
   return (
     <CvContext.Provider value={cvReady}>
       <Script
         src="https://docs.opencv.org/4.8.0/opencv.js"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         onLoad={() => {
           console.log('Script OpenCV chargé')
         }}
@@ -46,6 +48,5 @@ export function CvProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useCv() {
-  const ready = useContext(CvContext)
-  return ready
+  return useContext(CvContext)
 } 

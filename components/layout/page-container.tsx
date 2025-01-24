@@ -1,3 +1,5 @@
+"use client"
+
 interface PageContainerProps {
   children: React.ReactNode
   heading?: string

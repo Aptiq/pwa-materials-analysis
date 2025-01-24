@@ -4,12 +4,15 @@ import { CreateSubjectForm } from "@/components/subjects/create-subject-form"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 
+interface NewMaterialPageProps {
+  searchParams: { parentId?: string }
+}
+
 export default async function NewMaterialPage({
   searchParams,
-}: {
-  searchParams: { parentId?: string }
-}) {
-  const { parentId } = searchParams
+}: NewMaterialPageProps) {
+  const params = await Promise.resolve(searchParams)
+  const parentId = params.parentId
   
   let parentSubject = null
   if (parentId) {
