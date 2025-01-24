@@ -2,16 +2,15 @@
 
 import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 import { useCv } from "@/components/cv-provider"
 import { detectKeypoints, matToBase64, analyzeImages, AnalysisResult } from "@/lib/image-analysis"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
-import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// Déclaration du type global pour TypeScript
+// Déclaration du type OpenCV
 declare global {
   interface Window {
     cv: any
@@ -46,7 +45,7 @@ export function AnalyzeButton({
 }: AnalyzeButtonProps) {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(existingResults)
-  const cv = useCv()
+  const cv = useCv() as typeof window.cv
   const router = useRouter()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -180,7 +179,10 @@ export function AnalyzeButton({
             Analyse en cours...
           </>
         ) : existingResults ? (
-          "Relancer l'analyse"
+          <>
+            <Search className="mr-2 h-4 w-4" />
+            Relancer l'analyse
+          </>
         ) : (
           <>
             <Search className="mr-2 h-4 w-4" />
