@@ -92,8 +92,11 @@ export async function analyzeImages(image1Url: string, image2Url: string) {
   }
 }
 
-export async function detectKeypoints(imageData: cv.Mat) {
-  let gray: cv.Mat | null = null
+export async function detectKeypoints(imageData: cv.Mat): Promise<{
+  keypoints: cv.KeyPointVector,
+  descriptors: cv.Mat
+}> {
+  let gray = new cv.Mat()
   let keypoints: cv.KeyPointVector | null = null
   let descriptors: cv.Mat | null = null
   let visualResult: cv.Mat | null = null
@@ -102,7 +105,6 @@ export async function detectKeypoints(imageData: cv.Mat) {
     console.log("Début de la détection des points clés...")
     
     // 1. Convertir l'image en niveaux de gris
-    gray = new cv.Mat()
     cv.cvtColor(imageData, gray, cv.COLOR_RGBA2GRAY)
     
     // 2. Initialiser le détecteur AKAZE

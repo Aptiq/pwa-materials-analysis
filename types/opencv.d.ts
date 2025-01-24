@@ -62,11 +62,30 @@ declare namespace cv {
     height: number;
   }
 
-  // Constants
-  const CV_8U: number;
-  const CV_8UC3: number;
-  const CV_32F: number;
-  const NORM_L2: number;
+  // Constantes pour la conversion de couleur
+  const COLOR_RGB2GRAY: number
+  const COLOR_RGBA2GRAY: number
+  const COLOR_BGR2GRAY: number
+  const COLOR_BGRA2GRAY: number
+
+  // Constantes pour les types de matrices
+  const CV_8U: number
+  const CV_8UC3: number
+  const CV_32F: number
+  const NORM_L2: number
+
+  // Classes pour la détection de caractéristiques
+  class AKAZE {
+    constructor();
+    detect(image: Mat, mask?: Mat): KeyPointVector;
+    compute(image: Mat, keypoints: KeyPointVector, descriptors: Mat): void;
+  }
+
+  class SIFT {
+    constructor();
+    detect(image: Mat, mask?: Mat): KeyPointVector;
+    compute(image: Mat, keypoints: KeyPointVector, descriptors: Mat): void;
+  }
 
   // Functions
   function imread(imageSource: string | HTMLImageElement): Mat;
