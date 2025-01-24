@@ -19,6 +19,7 @@ export interface AnalysisResult {
   degradationScore: number
   colorDifference: number
   visualData: VisualData
+  error?: string
 }
 
 async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentResult> {
@@ -154,10 +155,11 @@ export async function analyzeImages(
         degradationScore: 1.0,
         colorDifference: 0,
         visualData: {
-          image1: "",
-          image2: "",
-          alignedImage: ""
-        }
+          image1: null,
+          image2: null,
+          alignedImage: null
+        },
+        error: "Erreur lors de l'alignement des images"
       }
     }
     
@@ -186,16 +188,16 @@ export async function analyzeImages(
       }
     }
   } catch (error) {
-    console.error("Erreur lors de l'analyse:", error)
     return {
       matchedZone: { x: 0, y: 0, width: 0, height: 0 },
-      degradationScore: 1.0,
+      degradationScore: 0,
       colorDifference: 0,
       visualData: {
-        image1: "",
-        image2: "",
-        alignedImage: ""
-      }
+        image1: null,
+        image2: null,
+        alignedImage: null
+      },
+      error: error instanceof Error ? error.message : "Une erreur est survenue lors de l'analyse"
     }
   }
 }

@@ -81,10 +81,10 @@ export function AnalyzeButton({
       ])
 
       // Convertir les images en matrices OpenCV
-      const mat1 = window.cv.imread(img1)
-      const mat2 = window.cv.imread(img2)
+      const mat1 = cv.imread(img1)
+      const mat2 = cv.imread(img2)
 
-      // Analyser les images avec alignement automatique
+      // Analyser les images
       const result = await analyzeImages(mat1, mat2)
 
       if (result.error) {
@@ -154,7 +154,7 @@ export function AnalyzeButton({
       toast.error("Une erreur est survenue lors de l'analyse")
     } finally {
       // Nettoyer les matrices OpenCV
-      if (window.cv) {
+      if (cv) {
         mat1?.delete()
         mat2?.delete()
       }
