@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
       data: {
         originSubjectId: body.originSubjectId,
         comparedSubjectId: body.comparedSubjectId,
-        matchedZone: null,
+        matchedZone: Prisma.JsonNull,
         degradationScore: null,
         colorDifference: null,
-        visualData: null,
+        visualData: Prisma.JsonNull,
       },
       include: {
         originSubject: true,
