@@ -25,6 +25,18 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
     notFound()
   }
 
+  const existingResults = analysis.matchedZone ? {
+    matchedZone: analysis.matchedZone,
+    degradationScore: analysis.degradationScore,
+    colorDifference: analysis.colorDifference,
+    visualData: analysis.visualData as {
+      originalKeypoints: string
+      comparedKeypoints: string
+      originalCount: number
+      comparedCount: number
+    } | undefined
+  } : null
+
   return (
     <PageContainer>
       <div className="max-w-5xl mx-auto px-4">
@@ -34,12 +46,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
             disabled={!analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl}
             originImageUrl={analysis.originSubject.imageUrl}
             comparedImageUrl={analysis.comparedSubject.imageUrl}
-            existingResults={analysis.matchedZone ? {
-              matchedZone: analysis.matchedZone,
-              degradationScore: analysis.degradationScore,
-              colorDifference: analysis.colorDifference,
-              visualData: analysis.visualData
-            } : null}
+            existingResults={existingResults}
           />
         </PageHeader>
 

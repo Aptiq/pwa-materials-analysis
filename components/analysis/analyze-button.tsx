@@ -22,8 +22,8 @@ interface AnalyzeButtonProps {
   comparedImageUrl: string | null
   existingResults?: {
     matchedZone: any
-    degradationScore: number
-    colorDifference: number
+    degradationScore: number | null
+    colorDifference: number | null
     visualData?: {
       originalKeypoints: string
       comparedKeypoints: string
