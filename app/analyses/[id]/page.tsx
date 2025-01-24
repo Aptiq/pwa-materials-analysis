@@ -29,9 +29,9 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
   // Cast visualData to our type
   const visualData = analysis.visualData as VisualData | null
 
-  // Modifier la condition pour créer existingResults
+  // Créer l'objet existingResults seulement si toutes les données nécessaires existent
   const existingResults = analysis.visualData ? {
-    matchedZone: analysis.matchedZone || {},  // Fournir un objet vide si null
+    matchedZone: analysis.matchedZone || {},
     degradationScore: analysis.degradationScore,
     colorDifference: analysis.colorDifference,
     visualData: visualData
@@ -42,12 +42,11 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
     id: analysis.id,
     hasMatchedZone: !!analysis.matchedZone,
     hasVisualData: !!visualData,
-    existingResults: !!existingResults,
-    visualDataKeys: visualData ? Object.keys(visualData) : null
+    existingResults: !!existingResults
   })
 
   return (
-    <main className="py-8 px-4 md:py-16 md:px-0 space-y-6 md:space-y-8">
+    <div className="py-8 px-4 md:py-16 md:px-0 space-y-6 md:space-y-8">
       <div className="max-w-5xl mx-auto px-4">
         <PageHeader title="Analyse">
           <AnalyzeButton 
@@ -195,6 +194,6 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
           </Card>
         )}
       </div>
-    </main>
+    </div>
   )
 } 
