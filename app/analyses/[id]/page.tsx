@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import Image from "next/image"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/layout/page-header"
+import { Analysis, VisualData } from "@/types/analysis"
 
 interface AnalysisPageProps {
   params: Promise<{ id: string }>
@@ -25,17 +26,8 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
     notFound()
   }
 
-  const existingResults = analysis.matchedZone ? {
-    matchedZone: analysis.matchedZone,
-    degradationScore: analysis.degradationScore,
-    colorDifference: analysis.colorDifference,
-    visualData: analysis.visualData as {
-      originalKeypoints: string
-      comparedKeypoints: string
-      originalCount: number
-      comparedCount: number
-    } | undefined
-  } : null
+  // Cast visualData to our type
+  const visualData = analysis.visualData as VisualData | null
 
   return (
     <PageContainer>
@@ -46,7 +38,12 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
             disabled={!analysis.originSubject.imageUrl || !analysis.comparedSubject.imageUrl}
             originImageUrl={analysis.originSubject.imageUrl}
             comparedImageUrl={analysis.comparedSubject.imageUrl}
-            existingResults={existingResults}
+            existingResults={analysis.matchedZone ? {
+              matchedZone: analysis.matchedZone,
+              degradationScore: analysis.degradationScore,
+              colorDifference: analysis.colorDifference,
+              visualData: visualData
+            } : null}
           />
         </PageHeader>
 
@@ -83,13 +80,13 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
           </div>
 
           {/* Deuxième colonne : Points détectés */}
-          {analysis.visualData && (
-            <div className="space-y-8">
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Points détectés - État d&apos;origine</h3>
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+          {visualData && (
+            <div className="space-y-4">
+              <Card>
+                <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État d&apos;origine</h3>
+                <div className="relative aspect-video w-full overflow-hidden p-4">
                   <Image
-                    src={analysis.visualData.originalKeypoints}
+                    src={visualData.originalKeypoints}
                     alt="Points détectés - État d'origine"
                     fill
                     className="object-cover"
@@ -97,11 +94,11 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
                 </div>
               </Card>
 
-              <Card className="p-4">
-                <h3 className="text-lg font-semibold mb-4">Points détectés - État comparé</h3>
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+              <Card>
+                <h3 className="text-lg font-semibold p-4 pb-0">Points détectés - État comparé</h3>
+                <div className="relative aspect-video w-full overflow-hidden p-4">
                   <Image
-                    src={analysis.visualData.comparedKeypoints}
+                    src={visualData.comparedKeypoints}
                     alt="Points détectés - État comparé"
                     fill
                     className="object-cover"
