@@ -32,12 +32,12 @@ type OpenCVDMatchVectorVector = {
 }
 
 interface OpenCV {
+  imread(img: HTMLImageElement): OpenCVMat
+  imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
   Mat: new () => OpenCVMat
   KeyPointVector: new () => OpenCVKeyPointVector
   DMatchVector: new () => OpenCVDMatchVector
   DMatchVectorVector: new () => OpenCVDMatchVectorVector
-  imread(img: HTMLImageElement): OpenCVMat
-  imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
 }
 
 interface AlignmentResult {
@@ -73,8 +73,8 @@ async function alignImages(
   let sourceDescriptors = new cv.Mat()
   let targetDescriptors = new cv.Mat()
   let matches = new cv.DMatchVectorVector()
-  let srcPoints: cv.Mat | null = null
-  let dstPoints: cv.Mat | null = null
+  let srcPoints: OpenCVMat | null = null
+  let dstPoints: OpenCVMat | null = null
   
   try {
     // 1. Détecter les points clés dans les deux images
