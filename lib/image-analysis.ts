@@ -1,12 +1,14 @@
 'use client'
 
-import { Mat, Point2 } from "@techstark/opencv-js"
+import type { Mat, Point2 } from "@techstark/opencv-js"
 import { VisualData } from "@/types/analysis"
 
 interface AlignmentResult {
-  alignedImage: cv.Mat;
-  homography?: cv.Mat;  // Matrice de transformation
-  success: boolean;
+  homography: Mat
+  matchedKeypoints: {
+    origin: Point2[]
+    compared: Point2[]
+  }
 }
 
 export interface AnalysisResult {
@@ -64,7 +66,7 @@ async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentRes
     
     // 4. Calculer l'homographie si on a assez de bonnes correspondances
     if (goodMatches.length < 4) {
-      return { alignedImage: source.clone(), success: false }
+      return { homography: source.clone(), matchedKeypoints: { origin: [], compared: [] }, success: false }
     }
     
     // Créer les matrices pour les points
@@ -94,14 +96,17 @@ async function alignImages(source: cv.Mat, target: cv.Mat): Promise<AlignmentRes
     )
     
     return {
-      alignedImage,
       homography,
+      matchedKeypoints: {
+        origin: Array.from(goodMatches.map(m => m.queryIdx).map(i => sourceKeypoints.get(i).pt)),
+        compared: Array.from(goodMatches.map(m => m.trainIdx).map(i => targetKeypoints.get(i).pt))
+      },
       success: true
     }
     
   } catch (error) {
     console.error("Erreur lors de l'alignement des images:", error)
-    return { alignedImage: source.clone(), success: false }
+    return { homography: source.clone(), matchedKeypoints: { origin: [], compared: [] }, success: false }
   } finally {
     // Nettoyer les ressources
     sourceGray.delete()

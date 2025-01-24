@@ -117,4 +117,38 @@ declare interface DescriptorMatcher {
 declare module "*.wasm" {
   const content: any;
   export default content;
+}
+
+declare module '@techstark/opencv-js' {
+  export interface Mat {
+    delete(): void
+    rows: number
+    cols: number
+  }
+
+  export interface Point2 {
+    x: number
+    y: number
+  }
+
+  export interface Size {
+    width: number
+    height: number
+  }
+
+  export interface Rect {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
+
+  export interface KeyPoint {
+    pt: Point2
+    size: number
+    angle: number
+    response: number
+    octave: number
+    class_id: number
+  }
 } 
