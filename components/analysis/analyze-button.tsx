@@ -10,13 +10,6 @@ import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { cn } from "@/lib/utils"
 
-// Déclaration du type OpenCV
-declare global {
-  interface Window {
-    cv: any
-  }
-}
-
 interface DetectionResult {
   keypoints: cv.KeyPointVector;
   descriptors: cv.Mat;

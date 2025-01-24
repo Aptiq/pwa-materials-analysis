@@ -167,19 +167,21 @@ declare module '@techstark/opencv-js' {
   export type KeyPointVector = Vector<KeyPoint>
   export type DMatchVector = Vector<DMatch>
   export type DMatchVectorVector = Vector<DMatchVector>
+
+  export interface OpenCV {
+    Mat: new () => Mat
+    KeyPointVector: new () => KeyPointVector
+    DMatchVector: new () => DMatchVector
+    DMatchVectorVector: new () => DMatchVectorVector
+    imread(img: HTMLImageElement): Mat
+    imshow(canvas: HTMLCanvasElement, mat: Mat): void
+    // ... autres méthodes OpenCV nécessaires
+  }
 }
 
 declare global {
   interface Window {
-    cv: {
-      Mat: new () => Mat
-      KeyPointVector: new () => KeyPointVector
-      DMatchVector: new () => DMatchVector
-      DMatchVectorVector: new () => DMatchVectorVector
-      imread(img: HTMLImageElement): Mat
-      imshow(canvas: HTMLCanvasElement, mat: Mat): void
-      // ... autres méthodes OpenCV nécessaires
-    }
+    cv: import('@techstark/opencv-js').OpenCV
   }
 }
 
