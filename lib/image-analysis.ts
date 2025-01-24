@@ -119,8 +119,8 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
     const descriptors = new cv.Mat()
     akaze.compute(gray, keypoints, descriptors)
 
-    // 5. Dessiner les points clés sur l'image de résultat
-    // TODO: Ajouter le code pour dessiner les points clés sur visualResult
+    // 5. Visualiser les points clés
+    visualResult = visualizeKeypoints(imageData, keypoints)
 
     return {
       keypoints,
@@ -135,19 +135,13 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
 }
 
 function visualizeKeypoints(image: cv.Mat, keypoints: cv.KeyPointVector): cv.Mat {
-  const visual = image.clone()
+  const visual = new cv.Mat()
+  image.copyTo(visual)
   
   for (let i = 0; i < keypoints.size(); i++) {
     const kp = keypoints.get(i)
-    const point = new cv.Point(Math.round(kp.pt.x), Math.round(kp.pt.y))
-    
-    cv.circle(
-      visual,
-      point,
-      3,  // Rayon
-      new cv.Scalar(0, 255, 0, 255),  // Couleur verte
-      2   // Épaisseur
-    )
+    // TODO: Dessiner un cercle ou un point pour chaque keypoint
+    // Nous aurons besoin d'ajouter les fonctions de dessin dans les types
   }
   
   return visual

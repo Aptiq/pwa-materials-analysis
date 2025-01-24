@@ -94,6 +94,15 @@ declare namespace cv {
   function cvtColor(src: Mat, dst: Mat, code: number): void;
   function SIFT_create(): Feature2D;
   function BFMatcher_create(normType?: number): DescriptorMatcher;
+
+  // Fonctions de dessin
+  function circle(img: Mat, center: Point, radius: number, color: Scalar, thickness?: number): void;
+  function drawKeypoints(image: Mat, keypoints: KeyPointVector, outImage: Mat, color?: Scalar): void;
+
+  // Type pour les couleurs
+  class Scalar {
+    constructor(r: number, g: number, b: number, a?: number);
+  }
 }
 
 declare interface Feature2D {
