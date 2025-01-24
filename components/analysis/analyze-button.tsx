@@ -68,6 +68,9 @@ export function AnalyzeButton({
       return
     }
 
+    let mat1: any = null
+    let mat2: any = null
+
     try {
       setLoading(true)
       setIsAnalyzing(true)
@@ -80,8 +83,8 @@ export function AnalyzeButton({
       ])
 
       // Convertir les images en matrices OpenCV
-      const mat1 = cv.imread(img1)
-      const mat2 = cv.imread(img2)
+      mat1 = cv.imread(img1)
+      mat2 = cv.imread(img2)
 
       // Analyser les images
       const result = await analyzeImages(mat1, mat2)
@@ -104,44 +107,29 @@ export function AnalyzeButton({
         setScore(result.degradationScore)
       }
 
-      // Préparer les données à sauvegarder
-      const dataToSave = {
-        ...result,
-        visualData: {
-          ...result.visualData,
-          image1: result.visualData.image1,
-          image2: result.visualData.image2,
-          alignedImage: result.visualData.alignedImage,
-          keypointsOrigin: result.visualData.keypointsOrigin || result.visualData.image1,
-          keypointsCompared: result.visualData.keypointsCompared || result.visualData.image2
-        }
-      }
-
       // Sauvegarder les résultats
       const response = await fetch(`/api/analyses/${analysisId}/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(dataToSave)
+        body: JSON.stringify(result)
       })
 
-      const responseData = await response.json()
-
       if (!response.ok) {
-        throw new Error(responseData.details || 'Erreur lors de la sauvegarde des résultats')
+        throw new Error('Erreur lors de la sauvegarde des résultats')
       }
 
       // Mettre à jour l'état local avec les données complètes
-      setResults(responseData.analysis)
+      setResults(result)
       setVisualData({
-        original1: responseData.analysis.visualData.image1,
-        original2: responseData.analysis.visualData.image2,
-        aligned: responseData.analysis.visualData.alignedImage
+        original1: result.visualData.image1,
+        original2: result.visualData.image2,
+        aligned: result.visualData.alignedImage
       })
       
-      if (responseData.analysis.degradationScore !== undefined) {
-        setScore(responseData.analysis.degradationScore)
+      if (result.degradationScore !== undefined) {
+        setScore(result.degradationScore)
       }
 
       toast.success("Analyse terminée et sauvegardée")
@@ -154,8 +142,8 @@ export function AnalyzeButton({
     } finally {
       // Nettoyer les matrices OpenCV
       if (cv) {
-        mat1?.delete()
-        mat2?.delete()
+        if (mat1) mat1.delete()
+        if (mat2) mat2.delete()
       }
       setIsAnalyzing(false)
       setLoading(false)
