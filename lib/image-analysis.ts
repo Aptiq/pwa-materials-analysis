@@ -98,10 +98,13 @@ export async function detectKeypoints(imageData: cv.Mat): Promise<{
   visualResult: cv.Mat;
 }> {
   let gray = new cv.Mat()
-  let visualResult = imageData.clone()
+  let visualResult = new cv.Mat()
   
   try {
     console.log("Début de la détection des points clés...")
+    
+    // Copier l'image d'entrée pour le résultat visuel
+    imageData.copyTo(visualResult)
     
     // 1. Convertir l'image en niveaux de gris
     cv.cvtColor(imageData, gray, cv.COLOR_RGBA2GRAY)

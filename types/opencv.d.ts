@@ -6,6 +6,7 @@ declare namespace cv {
     size(): Size;
     roi(rect: Rect): Mat;
     convertTo(dst: Mat, type: number): void;
+    copyTo(dst: Mat): void;
   }
 
   class MatVector {
