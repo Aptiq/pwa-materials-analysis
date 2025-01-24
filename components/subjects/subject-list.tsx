@@ -3,13 +3,13 @@ import Link from "next/link"
 import { FileQuestion } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Subject } from "@prisma/client"
+import { Subject as PrismaSubject } from "@prisma/client"
 import { SubjectCard } from "./subject-card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { loadOpenCvScript } from "@/types/opencv-loader"
 
-type Subject = {
+type LocalSubject = {
   id: string
   title: string
   description: string | null
@@ -24,7 +24,7 @@ type Subject = {
 }
 
 interface SubjectListProps {
-  subjects: Subject[]
+  subjects: LocalSubject[]
 }
 
 export function SubjectList({ subjects }: SubjectListProps) {
