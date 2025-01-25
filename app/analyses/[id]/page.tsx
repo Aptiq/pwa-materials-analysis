@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { AnalyzeButton } from "@/components/analysis/analyze-button"
-import { Card } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import { PageHeader } from "@/components/layout/page-header"
 import { Analysis, VisualData } from "@/types/analysis"
@@ -113,21 +113,37 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
               Card,
               null,
               React.createElement(
-                "h3",
-                { className: "text-lg font-semibold p-4 pb-0" },
-                "Points détectés - État d&apos;origine"
+                CardHeader,
+                null,
+                React.createElement(
+                  CardTitle,
+                  null,
+                  "Points détectés - État d'origine"
+                )
               ),
               React.createElement(
-                "div",
-                { className: "relative aspect-video w-full overflow-hidden p-4" },
-                React.createElement(
-                  Image,
-                  {
-                    src: visualData.originalKeypoints || visualData.image1,
-                    alt: "Points détectés - État d'origine",
-                    fill: true,
-                    className: "object-cover"
-                  }
+                CardContent,
+                { className: "aspect-square relative" },
+                (visualData.originalKeypoints || visualData.image1) ? (
+                  React.createElement(
+                    Image,
+                    {
+                      src: visualData.originalKeypoints || visualData.image1 || '',
+                      alt: "Points détectés - État d'origine",
+                      fill: true,
+                      className: "object-cover"
+                    }
+                  )
+                ) : (
+                  React.createElement(
+                    "div",
+                    { className: "w-full h-full flex items-center justify-center bg-muted" },
+                    React.createElement(
+                      "p",
+                      { className: "text-muted-foreground" },
+                      "Aucune image disponible"
+                    )
+                  )
                 )
               )
             ),
@@ -135,21 +151,37 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
               Card,
               null,
               React.createElement(
-                "h3",
-                { className: "text-lg font-semibold p-4 pb-0" },
-                "Points détectés - État comparé"
+                CardHeader,
+                null,
+                React.createElement(
+                  CardTitle,
+                  null,
+                  "Points détectés - État comparé"
+                )
               ),
               React.createElement(
-                "div",
-                { className: "relative aspect-video w-full overflow-hidden p-4" },
-                React.createElement(
-                  Image,
-                  {
-                    src: visualData.comparedKeypoints || visualData.image2,
-                    alt: "Points détectés - État comparé",
-                    fill: true,
-                    className: "object-cover"
-                  }
+                CardContent,
+                { className: "aspect-square relative" },
+                (visualData.comparedKeypoints || visualData.image2) ? (
+                  React.createElement(
+                    Image,
+                    {
+                      src: visualData.comparedKeypoints || visualData.image2 || '',
+                      alt: "Points détectés - État comparé",
+                      fill: true,
+                      className: "object-cover"
+                    }
+                  )
+                ) : (
+                  React.createElement(
+                    "div",
+                    { className: "w-full h-full flex items-center justify-center bg-muted" },
+                    React.createElement(
+                      "p",
+                      { className: "text-muted-foreground" },
+                      "Aucune image disponible"
+                    )
+                  )
                 )
               )
             )
