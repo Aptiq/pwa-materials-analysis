@@ -275,11 +275,14 @@ export function AnalyzeButton({
     const { image1, image2, alignedImage } = existingResults.visualData;
     if (!image1 || !image2 || !alignedImage) return null;
     
-    return {
+    // Retourner un objet avec des chaînes garanties non-null
+    const result: DialogImages = {
       original1: image1,
       original2: image2,
       aligned: alignedImage
-    }
+    };
+    
+    return result;
   }, [existingResults?.visualData])
 
   return (
