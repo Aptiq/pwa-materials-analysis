@@ -14,6 +14,15 @@ type OpenCVMat = {
   delete(): void
   rows: number
   cols: number
+  clone(): OpenCVMat
+  data: Uint8Array
+  step: number
+  elemSize(): number
+}
+
+type OpenCVPoint2 = {
+  x: number
+  y: number
 }
 
 type OpenCVKeyPointVector = {
