@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
-import { Button } from "@/components/ui/button"
+import { Button, ButtonProps } from "@/components/ui/button"
 import { Loader2, Search } from "lucide-react"
 import { useCv } from "@/components/cv-provider"
 import { detectKeypoints, matToBase64, analyzeImages, AnalysisResult } from "@/lib/image-analysis"
@@ -9,6 +9,8 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { VisualData } from "@/types/analysis"
 import { cn } from "@/lib/utils"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import Image from "next/image"
 
 type OpenCVMat = {
   delete(): void
@@ -100,13 +102,53 @@ interface AnalyzeButtonProps {
   } | null
 }
 
-interface AnalysisDialogProps {
-  images: {
-    original1: string;
-    original2: string;
-    aligned: string;
-  } | null;
+type DialogImages = {
+  original1: string;
+  original2: string;
+  aligned: string;
+}
+
+function AnalysisDialog({
+  images,
+  onClose
+}: {
+  images: DialogImages | null;
   onClose: () => void;
+}) {
+  if (!images) return null;
+
+  return (
+    <Dialog open onOpenChange={() => onClose()}>
+      <DialogContent className="max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="aspect-square relative">
+            <Image
+              src={images.original1}
+              alt="Image originale 1"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="aspect-square relative">
+            <Image
+              src={images.original2}
+              alt="Image originale 2"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="aspect-square relative md:col-span-2">
+            <Image
+              src={images.aligned}
+              alt="Image alignée"
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export function AnalyzeButton({ 
@@ -230,10 +272,13 @@ export function AnalyzeButton({
   const dialogImages = useMemo(() => {
     if (!existingResults?.visualData) return null;
     
+    const { image1, image2, alignedImage } = existingResults.visualData;
+    if (!image1 || !image2 || !alignedImage) return null;
+    
     return {
-      original1: existingResults.visualData.image1 ?? '',
-      original2: existingResults.visualData.image2 ?? '',
-      aligned: existingResults.visualData.alignedImage ?? ''
+      original1: image1,
+      original2: image2,
+      aligned: alignedImage
     }
   }, [existingResults?.visualData])
 
@@ -294,10 +339,12 @@ export function AnalyzeButton({
         </div>
       )}
 
-      <AnalysisDialog
-        images={dialogImages}
-        onClose={() => setShowDialog(false)}
-      />
+      {showDialog && (
+        <AnalysisDialog
+          images={dialogImages}
+          onClose={() => setShowDialog(false)}
+        />
+      )}
     </>
   )
 }
