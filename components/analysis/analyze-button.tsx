@@ -100,6 +100,15 @@ interface AnalyzeButtonProps {
   } | null
 }
 
+interface AnalysisDialogProps {
+  images: {
+    original1: string;
+    original2: string;
+    aligned: string;
+  } | null;
+  onClose: () => void;
+}
+
 export function AnalyzeButton({ 
   analysisId, 
   disabled,
@@ -125,6 +134,7 @@ export function AnalyzeButton({
   const [score, setScore] = useState<number | null>(
     existingResults?.degradationScore || null
   )
+  const [showDialog, setShowDialog] = useState(false)
 
   const analyze = useCallback(async () => {
     if (!cv || !originImageUrl || !comparedImageUrl) {
@@ -217,7 +227,7 @@ export function AnalyzeButton({
   const isAnalyzed = Boolean(existingResults?.visualData)
 
   return (
-    <div className="space-y-4">
+    <>
       <Button 
         onClick={analyze}
         disabled={disabled || loading || !originImageUrl || !comparedImageUrl}
@@ -272,7 +282,16 @@ export function AnalyzeButton({
           <p className="text-3xl font-bold">{(score * 100).toFixed(1)}%</p>
         </div>
       )}
-    </div>
+
+      <AnalysisDialog
+        images={existingResults?.visualData ? {
+          original1: existingResults.visualData.image1 || '',
+          original2: existingResults.visualData.image2 || '',
+          aligned: existingResults.visualData.alignedImage || ''
+        } : null}
+        onClose={() => setShowDialog(false)}
+      />
+    </>
   )
 }
 
