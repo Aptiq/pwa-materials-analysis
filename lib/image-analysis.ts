@@ -8,6 +8,7 @@ type OpenCVMat = {
   cols: number
   clone(): OpenCVMat
   data: Uint8Array
+  data32F: Float32Array
   step: number
   elemSize(): number
 }
