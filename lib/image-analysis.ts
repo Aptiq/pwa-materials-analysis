@@ -196,21 +196,25 @@ async function alignImages(
   }
 }
 
-function matchKeypoints(descriptors1: OpenCVMat, descriptors2: OpenCVMat): OpenCVDMatch[] {
+function matchKeypoints(
+  cv: OpenCV,
+  descriptors1: OpenCVMat,
+  descriptors2: OpenCVMat
+): OpenCVDMatch[] {
   const matches = new cv.DMatchVectorVector()
   const goodMatches: OpenCVDMatch[] = []
   
   try {
     // Créer le matcher
-    const matcher = new cv.BFMatcher()
+    const matcher = new cv.BFMatcher(cv.NORM_HAMMING, true)
     
-    // Trouver les 2 meilleurs matches pour chaque descripteur
+    // Trouver les meilleures correspondances
     matcher.knnMatch(descriptors1, descriptors2, matches, 2)
     
-    // Appliquer le ratio test de Lowe
+    // Filtrer les bonnes correspondances
     for (let i = 0; i < matches.size(); i++) {
       const match = matches.get(i)
-      if (match.get(0).distance < 0.7 * match.get(1).distance) {
+      if (match.size() === 1) {
         goodMatches.push(match.get(0))
       }
     }
@@ -249,7 +253,7 @@ export async function analyzeImages(
     const result2 = await detectKeypoints(cv, alignmentResult.alignedImage)
     
     // 3. Calculer le score de dégradation
-    const matches = matchKeypoints(result1.descriptors, result2.descriptors)
+    const matches = matchKeypoints(cv, result1.descriptors, result2.descriptors)
     const score = calculateDegradationScore(matches, result1.keypoints, result2.keypoints)
     
     // 4. Calculer la zone correspondante
