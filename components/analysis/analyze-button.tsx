@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Loader2, Search } from "lucide-react"
 import { useCv } from "@/components/cv-provider"
@@ -226,6 +226,17 @@ export function AnalyzeButton({
 
   const isAnalyzed = Boolean(existingResults?.visualData)
 
+  // Préparer les images avec une gestion stricte des null
+  const dialogImages = useMemo(() => {
+    if (!existingResults?.visualData) return null;
+    
+    return {
+      original1: existingResults.visualData.image1 ?? '',
+      original2: existingResults.visualData.image2 ?? '',
+      aligned: existingResults.visualData.alignedImage ?? ''
+    }
+  }, [existingResults?.visualData])
+
   return (
     <>
       <Button 
@@ -284,11 +295,7 @@ export function AnalyzeButton({
       )}
 
       <AnalysisDialog
-        images={existingResults?.visualData ? {
-          original1: existingResults.visualData.image1 || '',
-          original2: existingResults.visualData.image2 || '',
-          aligned: existingResults.visualData.alignedImage || ''
-        } : null}
+        images={dialogImages}
         onClose={() => setShowDialog(false)}
       />
     </>
