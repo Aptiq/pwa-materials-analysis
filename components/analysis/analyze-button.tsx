@@ -26,9 +26,18 @@ type OpenCVPoint2 = {
   y: number
 }
 
+type OpenCVKeyPoint = {
+  pt: OpenCVPoint2
+  size: number
+  angle: number
+  response: number
+  octave: number
+  class_id: number
+}
+
 type OpenCVKeyPointVector = {
   size(): number
-  get(index: number): any
+  get(index: number): OpenCVKeyPoint
   delete(): void
 }
 

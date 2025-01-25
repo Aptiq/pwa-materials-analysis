@@ -18,9 +18,18 @@ type OpenCVPoint2 = {
   y: number
 }
 
+type OpenCVKeyPoint = {
+  pt: OpenCVPoint2
+  size: number
+  angle: number
+  response: number
+  octave: number
+  class_id: number
+}
+
 type OpenCVKeyPointVector = {
   size(): number
-  get(index: number): any
+  get(index: number): OpenCVKeyPoint
   delete(): void
 }
 
@@ -139,8 +148,8 @@ async function alignImages(
       dstPoints.data32F[i * 2 + 1] = dstPt.y
     }
     
-    // Calculer l'homographie
-    const homography = cv.findHomography(srcPoints, dstPoints, cv.RANSAC)
+    // Calculer l'homographie avec un seuil de reprojection de 3.0
+    const homography = cv.findHomography(srcPoints, dstPoints, cv.RANSAC, 3.0)
     
     // 5. Appliquer la transformation
     const alignedImage = new cv.Mat()
