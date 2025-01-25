@@ -38,7 +38,10 @@ type OpenCVDMatchVectorVector = {
 interface OpenCV {
   imread(img: HTMLImageElement): OpenCVMat
   imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
-  Mat: new () => OpenCVMat
+  Mat: {
+    new (): OpenCVMat
+    new (rows: number, cols: number, type: number): OpenCVMat
+  }
   KeyPointVector: new () => OpenCVKeyPointVector
   DMatchVector: new () => OpenCVDMatchVector
   DMatchVectorVector: new () => OpenCVDMatchVectorVector
@@ -51,6 +54,7 @@ interface OpenCV {
   NORM_HAMMING: number
   COLOR_RGBA2GRAY: number
   RANSAC: number
+  CV_32FC2: number
 }
 
 interface AlignmentResult {
