@@ -91,18 +91,14 @@ async function alignImages(
     cv.cvtColor(target, targetGray, cv.COLOR_RGBA2GRAY)
     
     // Utiliser AKAZE qui est disponible dans OpenCV.js
-    const akaze = new cv.AKAZE()
-    
-    // Détecter les points clés
-    akaze.detect(sourceGray, sourceKeypoints)
-    akaze.detect(targetGray, targetKeypoints)
-    
-    // Calculer les descripteurs
-    akaze.compute(sourceGray, sourceKeypoints, sourceDescriptors)
-    akaze.compute(targetGray, targetKeypoints, targetDescriptors)
+    const detector = new cv.AKAZE()
+    detector.detect(sourceGray, sourceKeypoints)
+    detector.detect(targetGray, targetKeypoints)
+    detector.compute(sourceGray, sourceKeypoints, sourceDescriptors)
+    detector.compute(targetGray, targetKeypoints, targetDescriptors)
     
     // 2. Trouver les meilleures correspondances
-    const matcher = new cv.BFMatcher()
+    const matcher = new cv.BFMatcher(cv.NORM_HAMMING, true)
     matcher.knnMatch(sourceDescriptors, targetDescriptors, matches, 2)
     
     // 3. Filtrer les bonnes correspondances (ratio test de Lowe)
@@ -156,9 +152,6 @@ async function alignImages(
     
   } catch (error) {
     console.error("Erreur lors de l'alignement des images:", error)
-    return { homography: source.clone(), matchedKeypoints: { origin: [], compared: [] }, success: false }
-  } finally {
-    // Nettoyer les ressources
     sourceGray.delete()
     targetGray.delete()
     sourceKeypoints.delete()
@@ -168,6 +161,7 @@ async function alignImages(
     matches.delete()
     srcPoints?.delete()
     dstPoints?.delete()
+    return { homography: source.clone(), matchedKeypoints: { origin: [], compared: [] }, success: false }
   }
 }
 
