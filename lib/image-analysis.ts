@@ -97,7 +97,11 @@ export interface AnalysisResult {
   }
   degradationScore: number
   colorDifference: number
-  visualData: VisualData
+  visualData: {
+    image1: string | null
+    image2: string | null
+    alignedImage: string | null
+  }
   error?: string
 }
 

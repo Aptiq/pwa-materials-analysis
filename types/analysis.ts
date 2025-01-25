@@ -12,9 +12,9 @@ export type AnalysisResults = {
 }
 
 export interface VisualData {
-  image1: string;
-  image2: string;
-  alignedImage: string;
+  image1: string | null;
+  image2: string | null;
+  alignedImage: string | null;
   originalKeypoints?: string;
   comparedKeypoints?: string;
   keypointsOrigin?: string;
