@@ -41,6 +41,15 @@ interface OpenCV {
   KeyPointVector: new () => OpenCVKeyPointVector
   DMatchVector: new () => OpenCVDMatchVector
   DMatchVectorVector: new () => OpenCVDMatchVectorVector
+  cvtColor(src: OpenCVMat, dst: OpenCVMat, code: number): void
+  AKAZE: new () => any
+  BFMatcher: new (normType: number, crossCheck: boolean) => any
+  findHomography(srcPoints: OpenCVMat, dstPoints: OpenCVMat, method: number, ransacReprojThreshold: number): OpenCVMat
+  perspectiveTransform(src: OpenCVMat, dst: OpenCVMat, m: OpenCVMat): void
+  warpPerspective(src: OpenCVMat, dst: OpenCVMat, m: OpenCVMat, dsize: { width: number, height: number }): void
+  NORM_HAMMING: number
+  COLOR_RGBA2GRAY: number
+  RANSAC: number
 }
 
 interface DetectionResult {
