@@ -33,6 +33,12 @@ type OpenCVKeyPointVector = {
   delete(): void
 }
 
+type OpenCVDMatch = {
+  queryIdx: number
+  trainIdx: number
+  distance: number
+}
+
 type OpenCVDMatchVector = {
   size(): number
   get(index: number): any
@@ -190,9 +196,9 @@ async function alignImages(
   }
 }
 
-function matchKeypoints(descriptors1: cv.Mat, descriptors2: cv.Mat): cv.DMatch[] {
+function matchKeypoints(descriptors1: OpenCVMat, descriptors2: OpenCVMat): OpenCVDMatch[] {
   const matches = new cv.DMatchVectorVector()
-  const goodMatches: cv.DMatch[] = []
+  const goodMatches: OpenCVDMatch[] = []
   
   try {
     // Créer le matcher
