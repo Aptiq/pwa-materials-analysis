@@ -273,9 +273,15 @@ export function AnalyzeButton({
     if (!existingResults?.visualData) return null;
     
     const { image1, image2, alignedImage } = existingResults.visualData;
-    if (!image1 || !image2 || !alignedImage) return null;
     
-    // Retourner un objet avec des chaînes garanties non-null
+    // Vérification stricte des valeurs null
+    if (typeof image1 !== 'string' || 
+        typeof image2 !== 'string' || 
+        typeof alignedImage !== 'string') {
+      return null;
+    }
+    
+    // Construction d'un objet avec des chaînes garanties
     const result: DialogImages = {
       original1: image1,
       original2: image2,
@@ -342,7 +348,7 @@ export function AnalyzeButton({
         </div>
       )}
 
-      {showDialog && (
+      {showDialog && dialogImages && (
         <AnalysisDialog
           images={dialogImages}
           onClose={() => setShowDialog(false)}
