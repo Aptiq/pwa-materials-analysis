@@ -53,6 +53,11 @@ type OpenCVDMatchVectorVector = {
   delete(): void
 }
 
+type OpenCVSize = {
+  width: number
+  height: number
+}
+
 interface OpenCV {
   imread(img: HTMLImageElement): OpenCVMat
   imshow(canvas: HTMLCanvasElement, mat: OpenCVMat): void
@@ -60,6 +65,7 @@ interface OpenCV {
     new (): OpenCVMat
     new (rows: number, cols: number, type: number): OpenCVMat
   }
+  Size: new (width: number, height: number) => OpenCVSize
   KeyPointVector: new () => OpenCVKeyPointVector
   DMatchVector: new () => OpenCVDMatchVector
   DMatchVectorVector: new () => OpenCVDMatchVectorVector
@@ -68,7 +74,7 @@ interface OpenCV {
   BFMatcher: new (normType: number, crossCheck: boolean) => any
   findHomography(srcPoints: OpenCVMat, dstPoints: OpenCVMat, method: number, ransacReprojThreshold: number): OpenCVMat
   perspectiveTransform(src: OpenCVMat, dst: OpenCVMat, m: OpenCVMat): void
-  warpPerspective(src: OpenCVMat, dst: OpenCVMat, m: OpenCVMat, dsize: { width: number, height: number }): void
+  warpPerspective(src: OpenCVMat, dst: OpenCVMat, m: OpenCVMat, dsize: OpenCVSize): void
   NORM_HAMMING: number
   COLOR_RGBA2GRAY: number
   RANSAC: number
