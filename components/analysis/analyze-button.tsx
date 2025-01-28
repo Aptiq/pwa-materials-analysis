@@ -282,13 +282,11 @@ export function AnalyzeButton({
     }
     
     // Construction d'un objet avec des chaînes garanties
-    const result: DialogImages = {
+    return {
       original1: image1,
       original2: image2,
       aligned: alignedImage
-    };
-    
-    return result;
+    } as DialogImages;
   }, [existingResults?.visualData])
 
   return (
